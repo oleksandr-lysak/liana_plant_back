@@ -61,7 +61,7 @@
 								<label for="checkbox1"></label>
 							</span>
 						</td>
-                        <td><img style="width: 40px;" src="{{'https://lavka.trade/storage/'.$master->photo}}"></td>
+                        <td><img style="width: 40px;" src="{{'https://liana-plant.it-pragmat.com/storage/'.$master->photo}}"></td>
 						<td>{{$master->name}}</td>
 						<td>{{$master->description}}</td>
 						<td>{{$master->formattedAddress}}</td>
