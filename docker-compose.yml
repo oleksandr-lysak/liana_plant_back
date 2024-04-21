@@ -1,0 +1,35 @@
+version: '3'
+
+networks:
+    liana_plant_back_network: # Змінив ім'я мережі на унікальне
+
+services:
+    web:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - "8002:8000"
+        volumes:
+            - .:/var/www/html
+        depends_on:
+            - db
+        networks:
+            - liana_plant_back_network # Додаю мережу для веб-сервера
+
+    db:
+        image: mysql:8.3
+        environment:
+            MYSQL_DATABASE: laravel
+            MYSQL_USER: user
+            MYSQL_PASSWORD: password
+            MYSQL_ROOT_PASSWORD: root_password
+        ports:
+            - "3302:3306"
+        volumes:
+            - db_data:/var/lib/mysql
+        networks:
+            - liana_plant_back_network # Додаю мережу для бази даних
+
+volumes:
+    db_data:
