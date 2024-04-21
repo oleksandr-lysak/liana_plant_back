@@ -38,10 +38,10 @@ class MasterFactory extends Factory
     }
 
     public static function getImageUrl(){
-        // $url = 'https://api.lorem.space/image/face?w=450&amp;amp;amp;amp;h=660';
-        // $imageContent = file_get_contents($url);
-        // $image = fake()->numberBetween(111111,999999).'.jpg';
-        // \Illuminate\Support\Facades\Storage::disk('public')->put($image, $imageContent);
+         $url = 'https://api.lorem.space/image/face?w=450&amp;amp;amp;amp;h=660';
+         $imageContent = file_get_contents($url);
+         $image = fake()->numberBetween(111111,999999).'.jpg';
+         \Illuminate\Support\Facades\Storage::disk('public')->put($image, $imageContent);
         $files = Storage::allFiles('public');
         $randomFile = $files[rand(0, count($files) - 1)];
         $filename = str_replace('public/','',$randomFile);
