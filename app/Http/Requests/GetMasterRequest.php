@@ -5,12 +5,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class GetMasterRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'page' => 'required|numeric',

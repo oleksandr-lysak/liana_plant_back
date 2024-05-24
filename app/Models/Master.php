@@ -8,6 +8,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @method static find($id)
+ * @property mixed $photo
+ * @property String $address
+ */
 class Master extends Model
 {
     use HasFactory;

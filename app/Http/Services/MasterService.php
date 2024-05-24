@@ -2,17 +2,12 @@
 
 namespace App\Http\Services;
 
-use App\Helpers\AddressHelper;
 use App\Models\Master;
-use App\Models\Speciality;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 class MasterService
 {
-    public function getMastersOnDistance(int $page, float $lat, float $lng, float $zoom)
+    public function getMastersOnDistance(int $page, float $lat, float $lng, float $zoom): LengthAwarePaginator
     {
         $max_distance = 10;
         if ($zoom > 12) {

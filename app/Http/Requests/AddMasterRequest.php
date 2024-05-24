@@ -6,12 +6,12 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class AddMasterRequest extends FormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
         return true;
     }
 
-    public function rules()
+    public function rules(): array
     {
         return [
             'phone' => 'required|string',
