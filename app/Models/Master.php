@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class Master extends Model
@@ -43,8 +44,13 @@ class Master extends Model
         }
     }
 
-    public function speciality(): HasOne
+    public function specialities(): BelongsToMany
     {
-        return $this->hasOne(Speciality::class,'id','speciality_id');
+        return $this->belongsToMany(Speciality::class, 'master_speciality');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
     }
 }

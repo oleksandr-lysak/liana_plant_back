@@ -2,86 +2,56 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\AddressHelper;
+use App\Http\Requests\AddMasterRequest;
+use App\Http\Requests\GetMasterRequest;
+use App\Http\Resources\MasterResource;
+use App\Http\Services\MasterService;
 use App\Models\Master;
-use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class MasterController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
+
+    public function index(GetMasterRequest $request, MasterService $masterService): AnonymousResourceCollection
     {
-        //
+        $lat = $request->get('lat');
+        $lng = $request->get('lng');
+        $zoom = $request->get('zoom');
+
+        $masters = $masterService->getMastersOnDistance($request->get('page'), $lat, $lng, $zoom);
+
+        return MasterResource::collection($masters);
     }
 
-
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function getMaster($id): MasterResource
     {
-        //
+        $master = Master::find($id);
+
+        return new MasterResource($master);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
+    public function addMaster(AddMasterRequest $request): MasterResource
     {
-        //
+        dd($request);
+
+        return new MasterResource($master);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\Master  $master
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Master $master)
+    public function fillPlaceId(): JsonResponse
     {
-        //
-    }
+        $masters = Master::all();
+        foreach ($masters as $master) {
+            $master->place_id = AddressHelper::getPlaceId($master->latitude, $master->longitude);
+            $master->save();
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Models\Master  $master
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Master $master)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Master  $master
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Master $master)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\Master  $master
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Master $master)
-    {
-        //
+        return response()->json(['message' => 'Place id filled',
+            'masters' => [
+                'count' => $masters->count(),
+                'first' => $masters->first()->place_id,
+                'last' => $masters->last()->place_id
+            ]]);
     }
 }

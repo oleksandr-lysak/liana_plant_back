@@ -4,7 +4,7 @@ networks:
     liana_plant_back_network: # Змінив ім'я мережі на унікальне
 
 services:
-    web:
+    liana_plant_back_web:
         build:
             context: .
             dockerfile: Dockerfile
@@ -13,11 +13,11 @@ services:
         volumes:
             - .:/var/www/html
         depends_on:
-            - db
+            - liana_plant_back_db
         networks:
             - liana_plant_back_network # Додаю мережу для веб-сервера
 
-    db:
+    liana_plant_back_db:
         image: mysql:8.3
         environment:
             MYSQL_DATABASE: laravel

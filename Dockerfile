@@ -24,9 +24,11 @@ COPY . .
 # Встановлюємо залежності PHP та JS
 RUN composer install
 
+RUN mkdir -p storage/app/public
+
 # Відкриваємо порт 8000, якщо ви хочете використовувати локальний сервер Laravel
 EXPOSE 8000
 
 # Запускаємо команду для запуску веб-сервера PHP при старті контейнера
 CMD ["php", "artisan", "serve", "--host=0.0.0.0"]
-CMD ["php", "artisan", "storage:link"]
+#CMD ["php", "artisan", "storage:link"]
