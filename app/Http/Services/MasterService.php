@@ -4,9 +4,16 @@ namespace App\Http\Services;
 
 use App\Models\Master;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Storage;
 
 class MasterService
 {
+    protected Master $model;
+
+    public function __construct(Master $master)
+    {
+        $this->model = $master;
+    }
     public function getMastersOnDistance(int $page, float $lat, float $lng, float $zoom): LengthAwarePaginator
     {
         $max_distance = 10;
@@ -23,5 +30,31 @@ class MasterService
 
         return $query->paginate(100, ['*'], 'page', $page);
 
+    }
+
+    public function firstOrCreate(array $searchByData, array $data)
+    {
+        // Extract specialities and photo from the data array
+        $specialities = $data['specialities'];
+        $photo = $data['photo'];
+        unset($data['specialities']);
+
+        // Create or get the master
+        $master = $this->model::updateOrCreate($searchByData, $data);
+
+        // Sync the specialities
+        $master->specialities()->sync($specialities);
+
+        // Save the photo
+        if ($photo) {
+            $oldPhoto = $master->photo;
+            if ($oldPhoto) {
+                Storage::disk('public')->delete($oldPhoto);
+            }
+            $photoPath = $photo->store('photos', 'public');
+            $master->update(['photo' => $photoPath]);
+        }
+
+        return $master;
     }
 }

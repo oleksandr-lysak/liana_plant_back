@@ -11,6 +11,7 @@
         "laravel/framework": "^11.6",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
+        "propaganistas/laravel-phone": "^5.3",
         "psr/simple-cache": "^3.0",
         "spatie/laravel-data": "^4.6"
     },

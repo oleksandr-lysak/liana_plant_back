@@ -32,9 +32,12 @@ class MasterController extends Controller
         return new MasterResource($master);
     }
 
-    public function addMaster(AddMasterRequest $request): MasterResource
+    public function addMaster(AddMasterRequest $request, MasterService $masterService): MasterResource
     {
-        dd($request);
+        $data = $request->validated();
+        $master = $masterService->firstOrCreate([
+            'phone' => $data['phone'],
+        ], $data);
 
         return new MasterResource($master);
     }

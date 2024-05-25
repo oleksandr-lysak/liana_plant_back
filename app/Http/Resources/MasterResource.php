@@ -55,9 +55,14 @@ class MasterResource extends JsonResource
             'age' => (int)$this->age,
             'phone' => $this->phone,
             'reviews' => $this->reviews,
-            'specialities' => $this->specialities,
+            'specialities' => $this->specialities->map(function ($speciality) {
+                return [
+                    'id' => $speciality->id,
+                    'name' => $speciality->name,
+                ];
+            }),
             'rating' => $rating,
-            'main_photo' => $this->photo,
+            'main_photo' => asset('storage/'.$this->photo),
             'distance' => round($this->distance,3),
         ];
     }
