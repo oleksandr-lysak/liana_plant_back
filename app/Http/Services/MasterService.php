@@ -4,6 +4,8 @@ namespace App\Http\Services;
 
 use App\Models\Master;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class MasterService
@@ -56,5 +58,13 @@ class MasterService
         }
 
         return $master;
+    }
+
+    public function addReview(mixed $data): Model
+    {
+        // Create the review
+        $master = $this->model::find($data['master_id']);
+        $data['user_id'] = 1;
+        return $master->reviews()->create($data);
     }
 }

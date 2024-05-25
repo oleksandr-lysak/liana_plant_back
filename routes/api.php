@@ -29,6 +29,7 @@ Route::get('/', function (){
 Route::prefix('masters')->group(function () {
     Route::get('/', [MasterController::class, 'index']);
     Route::post('/', [MasterController::class, 'addMaster']);
+    Route::post('/review', [MasterController::class, 'addReview']);
     Route::get('/{id}', [MasterController::class, 'getMaster']);
 });
 

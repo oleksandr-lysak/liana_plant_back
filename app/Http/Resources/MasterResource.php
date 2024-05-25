@@ -43,18 +43,24 @@ class MasterResource extends JsonResource
             $rating += $review->rating;
         });
         // Calculate the average rating
-        $rating = $rating / ($this->reviews->count()? $this->reviews->count() : 1);
+        $rating = $rating / ($this->reviews->count() ? $this->reviews->count() : 1);
         // Return the master's details as an array
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'latitude'=>(float)$this->latitude,
+            'latitude' => (float)$this->latitude,
             'longitude' => (float)$this->longitude,
             'description' => $this->description,
             'address' => $this->address,
             'age' => (int)$this->age,
             'phone' => $this->phone,
-            'reviews' => $this->reviews,
+            'reviews' => $this->reviews->map(function ($review) {
+                return [
+                    'id' => $review->id,
+                    'review' => $review->review,
+                    'rating' => $review->rating,
+                ];
+            }),
             'specialities' => $this->specialities->map(function ($speciality) {
                 return [
                     'id' => $speciality->id,
@@ -62,8 +68,8 @@ class MasterResource extends JsonResource
                 ];
             }),
             'rating' => $rating,
-            'main_photo' => asset('storage/'.$this->photo),
-            'distance' => round($this->distance,3),
+            'main_photo' => asset('storage/' . $this->photo),
+            'distance' => round($this->distance, 3),
         ];
     }
 }

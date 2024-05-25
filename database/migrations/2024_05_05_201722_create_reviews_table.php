@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('title');
             $table->text('review');
             $table->integer('rating');
             $table->unsignedBigInteger('master_id');

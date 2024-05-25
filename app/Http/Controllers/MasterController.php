@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Helpers\AddressHelper;
 use App\Http\Requests\AddMasterRequest;
+use App\Http\Requests\AddReviewRequest;
 use App\Http\Requests\GetMasterRequest;
 use App\Http\Resources\MasterResource;
+use App\Http\Resources\ReviewResource;
 use App\Http\Services\MasterService;
 use App\Models\Master;
 use Illuminate\Http\JsonResponse;
@@ -40,6 +42,14 @@ class MasterController extends Controller
         ], $data);
 
         return new MasterResource($master);
+    }
+
+    public function addReview(AddReviewRequest $request, MasterService $masterService)
+    {
+        $data = $request->validated();
+        $review = $masterService->addReview($data);
+
+        return new ReviewResource($review);
     }
 
     public function fillPlaceId(): JsonResponse
