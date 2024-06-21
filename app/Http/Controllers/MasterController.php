@@ -44,7 +44,7 @@ class MasterController extends Controller
         return new MasterResource($master);
     }
 
-    public function addReview(AddReviewRequest $request, MasterService $masterService)
+    public function addReview(AddReviewRequest $request, MasterService $masterService): ReviewResource
     {
         $data = $request->validated();
         $review = $masterService->addReview($data);
@@ -56,7 +56,7 @@ class MasterController extends Controller
     {
         $masters = Master::all();
         foreach ($masters as $master) {
-            $master->place_id = AddressHelper::getPlaceId($master->latitude, $master->longitude);
+            $master->address = AddressHelper::getPlaceId($master->latitude, $master->longitude);
             $master->save();
         }
 

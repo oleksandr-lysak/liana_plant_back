@@ -2,17 +2,18 @@
 
 namespace App\Models;
 
+use App\Http\Casts\CustomRawPhoneNumberCast;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
-use Propaganistas\LaravelPhone\Casts\RawPhoneNumberCast;
 
 /**
  * @method static find($id)
  * @method static firstOrCreate(array $searchByData, array $data)
  * @method static updateOrCreate(array $searchByData, array $data)
+ * @method static limit(int $int)
  * @property mixed $photo
  * @property String $address
  */
@@ -35,7 +36,7 @@ class Master extends Model
 
     protected $casts = [
         'address' => 'json',
-        'phone' => RawPhoneNumberCast::class.':INTERNATIONAL',
+        'phone' => CustomRawPhoneNumberCast::class.':INTERNATIONAL',
     ];
 
     protected $fillable = [

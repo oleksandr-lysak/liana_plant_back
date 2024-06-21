@@ -5,7 +5,6 @@ namespace App\Http\Services;
 use App\Models\Master;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class MasterService

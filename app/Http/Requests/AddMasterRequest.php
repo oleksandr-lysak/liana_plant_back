@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Requests;
 
+use App\Helpers\AddressHelper;
 use App\Rules\Base64Image;
 use Illuminate\Foundation\Http\FormRequest;
 use Propaganistas\LaravelPhone\PhoneNumber;
@@ -8,6 +9,8 @@ use Propaganistas\LaravelPhone\PhoneNumber;
 /**
  * @property mixed $phone
  * @property mixed $country_code
+ * @property mixed $latitude
+ * @property mixed $longitude
  */
 class AddMasterRequest extends FormRequest
 {
@@ -28,6 +31,10 @@ class AddMasterRequest extends FormRequest
                 'phone' => new PhoneNumber($phone)
             ]);
         }
+        $address = AddressHelper::getPlaceId($this->latitude, $this->longitude);
+        $this->merge([
+            'address' => $address
+        ]);
     }
 
     public function rules(): array

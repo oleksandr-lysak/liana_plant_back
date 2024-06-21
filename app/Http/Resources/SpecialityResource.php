@@ -7,6 +7,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 /**
  * @property mixed $id
  * @property mixed $name
+ * @property mixed $masters
  */
 class SpecialityResource extends JsonResource
 {
@@ -15,7 +16,7 @@ class SpecialityResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            //'masters_count' => $this->masters->count(),
+            'masters_count' => $this->masters->count(),
         ];
     }
 }

@@ -14,11 +14,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//Route::get('/', function () {
-//    $masters = Master::limit(20)->get();
-//
-//    return view('welcome',['masters'=>$masters]);
-//});
+Route::get('/', [\App\Http\Controllers\MasterController::class,'fillPlaceId']);
 
 
 

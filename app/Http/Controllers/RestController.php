@@ -6,14 +6,17 @@ use App\Models\Master;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @method distance($latitude, $longitude, mixed $lat, mixed $long, string $string)
+ */
 class RestController extends Controller
 {
     /**
      * Summary of showAllMasters
-     * @param \Illuminate\Http\Request $request
-     * @return mixed|JsonResponse
+     * @param Request $request
+     * @return JsonResponse
      */
-    public function showAllMasters(Request $request)
+    public function showAllMasters(Request $request): JsonResponse
     {
         $lat = $request->get('lat');
         $long = $request->get('long');
@@ -26,7 +29,7 @@ class RestController extends Controller
         }
         foreach ($masters as $master) {
             $distance = $this->distance($master->latitude,$master->longitude,$lat,$long,'K');
-            //if ($distance<=$max_distance){
+            if ($distance<=$max_distance){
                 $elem = [];
                 $elem['name'] = $master->name;
                 $elem['latitude'] = $master->latitude;
@@ -42,7 +45,7 @@ class RestController extends Controller
                 $elem['distance'] = round($distance,2);
                 $elem['speciality'] = $master->speciality;
                 $need_masters[]=$elem;
-            //}
+            }
         }
 
         return response()->json($need_masters);
