@@ -14,7 +14,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [\App\Http\Controllers\MasterController::class,'fillPlaceId']);
+Route::get('/fill-place-id', [\App\Http\Controllers\MasterController::class,'fillPlaceId']);
+Route::get('/',
+    function () {
+        return json_encode([
+            'status' => 'success',
+        ]);
+    }
+);
 
 
 

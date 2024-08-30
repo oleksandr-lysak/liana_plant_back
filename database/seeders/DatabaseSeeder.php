@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\Master;
+use App\Models\Review;
 use App\Models\Speciality;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -40,6 +42,29 @@ class DatabaseSeeder extends Seeder
             $this->command->getOutput()->progressAdvance();
         }
 
+        // Завершення прогресу
+        $this->command->getOutput()->progressFinish();
+
+        // Виведення прогресу у консоль
+        $this->command->info("Creating {$total} users...");
+        $this->command->getOutput()->progressStart($total);
+        // Створення юзерів
+        for ($i = 0; $i < $total; $i++) {
+            User::factory()->create();
+            $this->command->getOutput()->progressAdvance();
+        }
+        // Завершення прогресу
+        $this->command->getOutput()->progressFinish();
+
+        $total = 100000;
+        // Виведення прогресу у консоль
+        $this->command->info("Creating {$total} reviews...");
+        $this->command->getOutput()->progressStart($total);
+        // Створення юзерів
+        for ($i = 0; $i < $total; $i++) {
+            Review::factory()->create();
+            $this->command->getOutput()->progressAdvance();
+        }
         // Завершення прогресу
         $this->command->getOutput()->progressFinish();
     }

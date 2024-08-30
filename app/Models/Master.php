@@ -36,7 +36,7 @@ class Master extends Model
 
     protected $casts = [
         'address' => 'json',
-        'phone' => CustomRawPhoneNumberCast::class.':INTERNATIONAL',
+        //'phone' => CustomRawPhoneNumberCast::class.':INTERNATIONAL',
     ];
 
     protected $fillable = [

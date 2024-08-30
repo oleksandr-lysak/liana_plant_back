@@ -51,6 +51,7 @@ class MasterResource extends JsonResource
             $address = '';
         }
         // Return the master's details as an array
+        //dd($this->image);
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -60,13 +61,7 @@ class MasterResource extends JsonResource
             'address' => $address,
             'age' => (int)$this->age,
             'phone' => $this->phone,
-            'reviews' => $this->reviews->map(function ($review) {
-                return [
-                    'id' => $review->id,
-                    'review' => $review->review,
-                    'rating' => $review->rating,
-                ];
-            }),
+            'reviews_count' => $this->reviews_count,
             'specialities' => $this->specialities->map(function ($speciality) {
                 return [
                     'id' => $speciality->id,
@@ -74,7 +69,7 @@ class MasterResource extends JsonResource
                 ];
             }),
             'rating' => $rating,
-            'main_photo' => asset('storage/' . $this->photo),
+            'main_photo' => 'storage/' . $this->photo,
             'distance' => round($this->distance, 3),
         ];
     }

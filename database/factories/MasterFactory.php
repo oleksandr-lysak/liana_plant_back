@@ -20,9 +20,12 @@ class MasterFactory extends Factory
     public function definition()
     {
         $password = bcrypt('werter');
-        $longitude = fake()->numberBetween(10988418, 11367699)/1000000;
-        $latitude = fake()->numberBetween(47731400, 47935135)/1000000;
-        $address = AddressHelper::getPlaceId($latitude, $longitude);
+        // Діапазони для центральної Європи
+        $latitude = fake()->randomFloat(6, 46, 54);  // Широта: від 46° до 54°
+        $longitude = fake()->randomFloat(6, 6, 19);  // Довгота: від 6° до 19°
+
+        //$address = AddressHelper::getPlaceId($latitude, $longitude);
+        $address = '';
         return [
             'name' => fake()->name(),
             'phone' => fake()->unique()->phoneNumber(),
@@ -38,13 +41,13 @@ class MasterFactory extends Factory
     }
 
     public static function getImageUrl(){
-        $randomPhotoName = fake()->numberBetween(1, 99);
-        $url = 'https://randomuser.me/api/portraits/men/' . $randomPhotoName . '.jpg';
-        $imageContent = file_get_contents($url);
-        $image = fake()->numberBetween(111111, 999999) . '.jpg';
-        \Illuminate\Support\Facades\Storage::disk('public')->put($image, $imageContent);
+//        $randomPhotoName = fake()->numberBetween(1, 99);
+//        $url = 'https://randomuser.me/api/portraits/men/' . $randomPhotoName . '.jpg';
+//        $imageContent = file_get_contents($url);
+//        $image = fake()->numberBetween(111111, 999999) . '.jpg';
+//        \Illuminate\Support\Facades\Storage::disk('public')->put($image, $imageContent);
         $files = Storage::allFiles('public');
-        $randomFile = $files[rand(0, count($files) - 1)];
+        $randomFile = $files[rand(2, count($files) - 1)];
         $filename = str_replace('public/', '', $randomFile);
         return $filename;
     }
