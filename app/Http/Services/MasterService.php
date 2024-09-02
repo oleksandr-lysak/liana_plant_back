@@ -15,6 +15,7 @@ class MasterService
     {
         $this->model = $master;
     }
+
     public function getMastersOnDistance(int $page, float $lat, float $lng, float $zoom): LengthAwarePaginator
     {
         $max_distance = 100;
@@ -43,6 +44,7 @@ class MasterService
         $specialities = $data['specialities'];
         $photo = $data['photo'];
         unset($data['specialities']);
+        $data['password'] = bcrypt($data['password']);
 
         // Create or get the master
         $master = $this->model::updateOrCreate($searchByData, $data);
@@ -52,12 +54,28 @@ class MasterService
 
         // Save the photo
         if ($photo) {
+            // Remove the old photo if it exists
             $oldPhoto = $master->photo;
             if ($oldPhoto) {
                 Storage::disk('public')->delete($oldPhoto);
             }
-            $photoPath = $photo->store('photos', 'public');
-            $master->update(['photo' => $photoPath]);
+
+            // Check if the photo is in Base64 format
+            if (preg_match('/^data:image\/(\w+);base64,/', $photo, $matches)) {
+                // Get the file extension
+                $extension = $matches[1];
+                // Decode the Base64 string
+                $photo = base64_decode(substr($photo, strpos($photo, ',') + 1));
+                // Generate a unique file name
+                $photoName = uniqid() . '.' . $extension;
+                // Store the image in the 'photos' directory
+                Storage::disk('public')->put('photos/' . $photoName, $photo);
+                // Update the master record with the new photo path
+                $master->update(['photo' => 'photos/' . $photoName]);
+            } else {
+                // Handle error: invalid Base64 image
+                throw new \Exception('The provided photo is not a valid Base64 image.');
+            }
         }
 
         return $master;

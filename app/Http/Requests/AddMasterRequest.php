@@ -23,7 +23,7 @@ class AddMasterRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        if ($this->country_code) {
+        if ($this->country_code && $this->phone) {
             $phone = preg_replace('/[^0-9]/', '', $this->phone);
             $phone = preg_replace('/[^0-9]/', '', phone($phone, $this->country_code)->formatNational());
             $phone = phone($phone, $this->country_code)->formatE164();
@@ -31,10 +31,12 @@ class AddMasterRequest extends FormRequest
                 'phone' => new PhoneNumber($phone)
             ]);
         }
-        $address = AddressHelper::getPlaceId($this->latitude, $this->longitude);
-        $this->merge([
-            'address' => $address
-        ]);
+        if ($this->latitude && $this->longitude) {
+            $address = AddressHelper::getPlaceId($this->latitude, $this->longitude);
+            $this->merge([
+                'address' => $address
+            ]);
+        }
     }
 
     public function rules(): array
@@ -44,9 +46,9 @@ class AddMasterRequest extends FormRequest
             'phone' => 'required|phone:mobile',
             'name' => 'required|string',
             'password' => 'required|string',
+            'address' => 'string',
             'age' => 'required|numeric',
             'description' => 'required|string',
-            'address' => 'required|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'specialities' => 'required|array',

@@ -14,7 +14,8 @@
         "propaganistas/laravel-phone": "^5.3",
         "psr/simple-cache": "^3.0",
         "spatie/laravel-data": "^4.6",
-      "ext-json": "*"
+      "ext-json": "*",
+        "ext-fileinfo": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
