@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
  * @method static updateOrCreate(array $searchByData, array $data)
  * @method static limit(int $int)
  * @property mixed $photo
- * @property String $address
+ * @property string $address
  */
 class Master extends Model
 {

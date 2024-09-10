@@ -12,10 +12,19 @@ use App\Http\Services\MasterService;
 use App\Models\Master;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class MasterController extends Controller
 {
 
+    /**
+     * Display a listing of the resource.
+     *
+     * @param GetMasterRequest $request The request instance containing validation and authorization logic.
+     * @param MasterService $masterService The service instance to handle business logic related to masters.
+     * @return AnonymousResourceCollection A collection of resources to be returned as a response.
+     */
     public function index(GetMasterRequest $request, MasterService $masterService): AnonymousResourceCollection
     {
         $lat = $request->get('lat');
@@ -27,6 +36,12 @@ class MasterController extends Controller
         return MasterResource::collection($masters);
     }
 
+    /**
+     * Retrieve the master resource by its ID.
+     *
+     * @param int $id The ID of the master resource to retrieve.
+     * @return MasterResource The master resource corresponding to the given ID.
+     */
     public function getMaster($id): MasterResource
     {
         $master = Master::find($id);
@@ -34,14 +49,25 @@ class MasterController extends Controller
         return new MasterResource($master);
     }
 
-    public function addMaster(AddMasterRequest $request, MasterService $masterService): MasterResource
+    public function addMaster(AddMasterRequest $request, MasterService $masterService): JsonResponse
     {
         $data = $request->validated();
         $master = $masterService->firstOrCreate([
             'phone' => $data['phone'],
         ], $data);
 
-        return new MasterResource($master);
+        try {
+            // Генеруємо токен для новоствореного майстра
+            $token = JWTAuth::fromUser($master);
+        } catch (JWTException $e) {
+            return response()->json(['error' => 'Не вдалося створити токен'], 500);
+        }
+
+        // Повертаємо токен разом з інформацією про майстра
+        return response()->json([
+            'master' => new MasterResource($master),
+            'token' => $token,
+        ]);
     }
 
     public function addReview(AddReviewRequest $request, MasterService $masterService): ReviewResource

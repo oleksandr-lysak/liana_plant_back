@@ -35,10 +35,10 @@ Route::prefix('masters')->group(function () {
 
 Route::prefix('specialties')->group(function () {
     Route::get('/', [SpecialityController::class, 'index']);
+    Route::get('/{id}', [SpecialityController::class, 'getSpeciality']);
 });
 
-Route::prefix('specialities')->group(function () {
-    Route::get('/', [SpecialityController::class, 'index']);
-    Route::get('/{id}', [SpecialityController::class, 'getSpeciality']);
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::get('/protected-route', [MasterController::class, 'protectedMethod']);
 });
 

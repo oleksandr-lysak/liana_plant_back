@@ -6,6 +6,8 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ext-fileinfo": "*",
+        "ext-json": "*",
         "doctrine/dbal": "^4.0",
         "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^11.6",
@@ -14,8 +16,7 @@
         "propaganistas/laravel-phone": "^5.3",
         "psr/simple-cache": "^3.0",
         "spatie/laravel-data": "^4.6",
-      "ext-json": "*",
-        "ext-fileinfo": "*"
+        "tymon/jwt-auth": "^2.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
