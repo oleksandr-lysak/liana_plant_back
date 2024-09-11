@@ -13,7 +13,7 @@ return [
      * Supported: "MAGAZIN", "Market", "TAXI", "SERVIS TAXI",
      *            "Dostavka24", "IT Alarm", "Post Master"
      */
-    'sms_sender' => env('TURBOSMS_SMS_SENDER', 'Market'),
+    'sms_sender' => env('TURBOSMS_SMS_SENDER', 'IT Alarm'),
 
     /**
      * @see https://turbosms.ua/viber/show/senders.html
