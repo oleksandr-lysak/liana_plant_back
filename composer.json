@@ -8,6 +8,7 @@
         "php": "^8.2",
         "ext-fileinfo": "*",
         "ext-json": "*",
+        "daaner/turbosms": "^1.40",
         "doctrine/dbal": "^4.0",
         "guzzlehttp/guzzle": "^7.8",
         "laravel/framework": "^11.6",

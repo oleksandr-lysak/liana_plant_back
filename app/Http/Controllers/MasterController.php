@@ -9,6 +9,7 @@ use App\Http\Requests\GetMasterRequest;
 use App\Http\Resources\MasterResource;
 use App\Http\Resources\ReviewResource;
 use App\Http\Services\MasterService;
+use App\Http\Services\SmsService;
 use App\Models\Master;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -49,9 +50,12 @@ class MasterController extends Controller
         return new MasterResource($master);
     }
 
-    public function addMaster(AddMasterRequest $request, MasterService $masterService): JsonResponse
+    public function verifyAndRegister(AddMasterRequest $request, MasterService $masterService, SmsService $smsService): JsonResponse
     {
         $data = $request->validated();
+        if (!$smsService->verifyCode($data['phone'], $data['sms_code'])) {
+            return response()->json(['error' => 'Wrong code'], 400);
+        }
         $master = $masterService->firstOrCreate([
             'phone' => $data['phone'],
         ], $data);
@@ -60,7 +64,7 @@ class MasterController extends Controller
             // Генеруємо токен для новоствореного майстра
             $token = JWTAuth::fromUser($master);
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Не вдалося створити токен'], 500);
+            return response()->json(['error' => 'Token not created '], 500);
         }
 
         // Повертаємо токен разом з інформацією про майстра

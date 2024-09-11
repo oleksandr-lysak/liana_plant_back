@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MasterController;
+use App\Http\Controllers\SmsVerificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RestController;
@@ -36,6 +37,13 @@ Route::prefix('masters')->group(function () {
 Route::prefix('specialties')->group(function () {
     Route::get('/', [SpecialityController::class, 'index']);
     Route::get('/{id}', [SpecialityController::class, 'getSpeciality']);
+});
+
+Route::prefix('auth')->group(function () {
+//    Route::post('/login', [RestController::class, 'login']);
+//    Route::post('/register', [RestController::class, 'register']);
+//    Route::post('/logout', [RestController::class, 'logout']);
+    Route::post('/send-code', [SmsVerificationController::class, 'sendCode']);
 });
 
 Route::group(['middleware' => 'auth:api'], function () {

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "917b2e977da423eb353aafe148a6c685",
+    "content-hash": "4777e6bd57d7fd9b08f5c37fdc884347",
     "packages": [
         {
             "name": "amphp/amp",
@@ -993,6 +993,69 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
+        },
+        {
+            "name": "daaner/turbosms",
+            "version": "1.40",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/daaner/turbosms.git",
+                "reference": "ed7d6629fde11d081185f3ebe53edb4970371d55"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/daaner/turbosms/zipball/ed7d6629fde11d081185f3ebe53edb4970371d55",
+                "reference": "ed7d6629fde11d081185f3ebe53edb4970371d55",
+                "shasum": ""
+            },
+            "require": {
+                "laravel/framework": ">=7.0",
+                "php": ">=7.2.5"
+            },
+            "require-dev": {
+                "orchestra/testbench": ">=3.5",
+                "phpunit/phpunit": ">=7.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Daaner\\TurboSMS\\TurboSMSServiceProvider"
+                    ],
+                    "aliases": {
+                        "TurboSMS": "Daaner\\TurboSMS\\Facades\\TurboSMS"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Daaner\\TurboSMS\\": "src",
+                    "Daaner\\TurboSMS\\Tests\\": "tests/",
+                    "Daaner\\TurboSMS\\Facades\\": "src/Facades"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Daan",
+                    "email": "daan@ukr.net"
+                }
+            ],
+            "description": "TurboSMS for Laravel 7+",
+            "keywords": [
+                "daaner",
+                "laravel-sms",
+                "sms",
+                "turbosms"
+            ],
+            "support": {
+                "issues": "https://github.com/daaner/turbosms/issues",
+                "source": "https://github.com/daaner/turbosms/tree/1.40"
+            },
+            "time": "2023-04-17T15:41:50+00:00"
         },
         {
             "name": "daverandom/libdns",

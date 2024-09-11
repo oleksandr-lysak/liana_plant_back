@@ -51,8 +51,7 @@ class AddMasterRequest extends FormRequest
             'description' => 'required|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
-            'specialities' => 'required|array',
-            'specialities.*' => 'required',
+            'sms_code' => 'required|string',
             'photo' => ['required', new Base64Image()],
             'speciality_id' => 'required|numeric',
         ];
