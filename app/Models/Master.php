@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 /**
  * @method static find($id)
@@ -17,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
  * @property mixed $photo
  * @property string $address
  */
-class Master extends Model
+class Master extends Model implements JWTSubject
 {
     use HasFactory;
 
@@ -80,5 +81,20 @@ class Master extends Model
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
+    }
+
+    public function timeSlots(): HasMany
+    {
+        return $this->hasMany(TimeSlot::class);
     }
 }

@@ -1,10 +1,9 @@
 <?php
 namespace App\Http\Requests;
-
-use App\Helpers\AddressHelper;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use App\Rules\Base64Image;
 use Illuminate\Foundation\Http\FormRequest;
-use Propaganistas\LaravelPhone\PhoneNumber;
 
 /**
  * @property mixed $phone
@@ -14,46 +13,25 @@ use Propaganistas\LaravelPhone\PhoneNumber;
  */
 class AddMasterRequest extends FormRequest
 {
-
-
-    public function authorize(): bool
+    protected function failedValidation(Validator $validator)
     {
-        return true;
-    }
-
-    protected function prepareForValidation(): void
-    {
-        if ($this->country_code && $this->phone) {
-            $phone = preg_replace('/[^0-9]/', '', $this->phone);
-            $phone = preg_replace('/[^0-9]/', '', phone($phone, $this->country_code)->formatNational());
-            $phone = phone($phone, $this->country_code)->formatE164();
-            $this->merge([
-                'phone' => new PhoneNumber($phone)
-            ]);
-        }
-        if ($this->latitude && $this->longitude) {
-            $address = AddressHelper::getPlaceId($this->latitude, $this->longitude);
-            $this->merge([
-                'address' => $address
-            ]);
-        }
+        throw new HttpResponseException(response()->json([
+            'errors' => $validator->errors()
+        ], 422));
     }
 
     public function rules(): array
     {
         return [
-            'country_code' => 'required|string',
-            'phone' => 'required|phone:mobile',
+            'phone' => 'required|string',
             'name' => 'required|string',
-            'password' => 'required|string',
-            'address' => 'string',
-            'age' => 'required|numeric',
             'description' => 'required|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
-            'sms_code' => 'required|string',
+            'place_id' => 'required|string',
+            'sms_code' => 'required|numeric',
             'photo' => ['required', new Base64Image()],
-            'speciality_id' => 'required|numeric',
+            'specialty_id' => 'required|numeric',
         ];
     }
 }

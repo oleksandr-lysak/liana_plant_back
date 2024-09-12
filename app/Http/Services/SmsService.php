@@ -9,14 +9,16 @@ class SmsService
 {
     /**
      * @param string $phone
-     * @return void
+     * @return string
      */
-    public function generateAndSendCode(string $phone): void
+    public function generateAndSendCode(string $phone): string
     {
         $code = rand(1000, 9999);
         Cache::put('sms_code_' . $phone, $code, now()->addMinutes(10));
 
         TurboSMS::sendMessages($phone, "$code");
+
+        return "$code";
     }
 
     /**
@@ -27,6 +29,6 @@ class SmsService
     public function verifyCode(string $phone, string $inputCode): bool
     {
         $cachedCode = Cache::get('sms_code_' . $phone);
-        return $cachedCode === $inputCode;
+        return $cachedCode == $inputCode;
     }
 }

@@ -4,7 +4,7 @@ use App\Http\Controllers\MasterController;
 use App\Http\Controllers\SmsVerificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RestController;
+use App\Http\Controllers\TimeSlotController;
 use App\Http\Controllers\SpecialityController;
 
 /*
@@ -29,7 +29,6 @@ Route::get('/', function (){
 
 Route::prefix('masters')->group(function () {
     Route::get('/', [MasterController::class, 'index']);
-    Route::post('/', [MasterController::class, 'addMaster']);
     Route::post('/review', [MasterController::class, 'addReview']);
     Route::get('/{id}', [MasterController::class, 'getMaster']);
 });
@@ -40,13 +39,16 @@ Route::prefix('specialties')->group(function () {
 });
 
 Route::prefix('auth')->group(function () {
-//    Route::post('/login', [RestController::class, 'login']);
-//    Route::post('/register', [RestController::class, 'register']);
-//    Route::post('/logout', [RestController::class, 'logout']);
+    Route::post('/master-register',
+        [MasterController::class, 'verifyAndRegister']
+    );
     Route::post('/send-code', [SmsVerificationController::class, 'sendCode']);
 });
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/protected-route', [MasterController::class, 'protectedMethod']);
 });
+
+Route::post('/time-slots', [TimeSlotController::class, 'store']);
+Route::get('/time-slots', [TimeSlotController::class, 'index']);
 

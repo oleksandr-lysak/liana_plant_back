@@ -41,16 +41,11 @@ class MasterService
     public function firstOrCreate(array $searchByData, array $data)
     {
         // Extract specialities and photo from the data array
-        $specialities = $data['specialities'];
+
         $photo = $data['photo'];
-        unset($data['specialities']);
-        $data['password'] = bcrypt($data['password']);
 
         // Create or get the master
         $master = $this->model::updateOrCreate($searchByData, $data);
-
-        // Sync the specialities
-        $master->specialities()->sync($specialities);
 
         // Save the photo
         if ($photo) {
