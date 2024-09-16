@@ -10,14 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-/**
- * @method static find($id)
- * @method static firstOrCreate(array $searchByData, array $data)
- * @method static updateOrCreate(array $searchByData, array $data)
- * @method static limit(int $int)
- * @property mixed $photo
- * @property string $address
- */
+
 class Master extends Model implements JWTSubject
 {
     use HasFactory;

@@ -15,7 +15,7 @@ class SpecialityResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
+            'name' => __('data.specialities.' . $this->name),
             'masters_count' => $this->masters->count(),
         ];
     }

@@ -1,8 +1,25 @@
 <?php
 return [
     'specialities' => [
-        'hairdresser' => 'Hairdresser',
-        'barber' => 'Barber',
-        'stylist' => 'Stylist',
+        'pedicure' => 'Педикюр',
+        'manicure' => 'Манікюр',
+        'hair_coloring' => 'Фарбування волосся',
+        'haircut' => 'Стрижка',
+        'cosmetics_selection' => 'Підбір косметики',
+        'facial' => 'Догляд за обличчям',
+        'massage' => 'Масаж',
+        'eyelash_extensions' => 'Нарощування вій',
+        'eyebrow_shaping' => 'Формування брів',
+        'waxing' => 'Ваксинг',
+        'makeup' => 'Макіяж',
+        'hair_styling' => 'Укладання волосся',
+        'nail_art' => 'Нейл-арт',
+        'hair_removal' => 'Видалення волосся',
+        'spa_treatments' => 'СПА-процедури',
+        'body_scrub' => 'Скраб для тіла',
+        'tanning' => 'Засмага',
+        'botox' => 'Ботокс',
+        'laser_treatment' => 'Лазерне лікування',
+        'microdermabrasion' => 'Мікродермабразія',
     ],
 ];

@@ -17,8 +17,11 @@ return new class extends Migration
             $table->date('date');
             $table->time('time');
             $table->boolean('is_booked')->default(false);
-            $table->string('client_name')->nullable();
-            $table->string('service')->nullable();
+            $table->string('client_name');
+            $table->integer('service_id');
+            $table->string('client_phone');
+            $table->string('source')->nullable();
+            $table->integer('duration');
             $table->timestamps();
         });
     }

@@ -15,7 +15,10 @@ class TimeSlot extends Model
         'time',
         'is_booked',
         'client_name',
-        'service',
+        'service_id',
+        'client_phone',
+        'source',
+        'duration',
     ];
 
     public function master()

@@ -11,14 +11,4 @@ class Review extends Model
     use HasFactory;
     protected $guarded = [];
     protected $table = 'reviews';
-
-//    public function model(): MorphTo
-//    {
-//        return $this->morphTo();
-//    }
-//
-//    public function user(): MorphTo
-//    {
-//        return $this->morphTo();
-//    }
 }

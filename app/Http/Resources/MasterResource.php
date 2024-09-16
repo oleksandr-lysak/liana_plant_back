@@ -50,8 +50,6 @@ class MasterResource extends JsonResource
         } catch (\Exception $e) {
             $address = '';
         }
-        // Return the master's details as an array
-        //dd($this->image);
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -65,7 +63,7 @@ class MasterResource extends JsonResource
             'specialities' => $this->specialities->map(function ($speciality) {
                 return [
                     'id' => $speciality->id,
-                    'name' => $speciality->name,
+                    'name' => __('data.specialities.' . $speciality->name),
                 ];
             }),
             'rating' => $rating,
