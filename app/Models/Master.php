@@ -90,4 +90,9 @@ class Master extends Model implements JWTSubject
     {
         return $this->hasMany(TimeSlot::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

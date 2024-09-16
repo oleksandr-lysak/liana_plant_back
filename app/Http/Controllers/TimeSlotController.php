@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTimeSlotRequest;
 use App\Models\TimeSlot;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use JWTAuth;
 
 class TimeSlotController extends Controller
 {
@@ -24,9 +26,14 @@ class TimeSlotController extends Controller
         return response()->json(['message' => 'Time slot updated successfully']);
     }
 
-    public function index(Request $request, $masterId, $startDate)
+    public function index(Request $request, $startDate)
     {
-        $slots = TimeSlot::where('master_id', $masterId)
+        $token = JWTAuth::getToken();
+$payload = JWTAuth::decode($token);
+dd($payload);
+        $master = JWTAuth::parseToken()->authenticate();
+        dd($master);
+        $slots = TimeSlot::where('master_id', $master->id)
             ->where('date', '>=', $startDate)
             ->get();
 

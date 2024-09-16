@@ -37,44 +37,36 @@ class MasterService
         return $query->paginate(100, ['*'], 'page', $page);
 
     }
-
-    public function firstOrCreate(array $searchByData, array $data)
+    public function createOrUpdate(array $data)
     {
-        // Extract specialities and photo from the data array
-
         $photo = $data['photo'];
+        $master = Master::updateOrCreate(['phone' => $data['phone']], $data);
 
-        // Create or get the master
-        $master = $this->model::updateOrCreate($searchByData, $data);
+        $this->handlePhoto($master, $photo);
 
-        // Save the photo
+        return $master;
+    }
+
+    protected function handlePhoto(Master $master, $photo)
+    {
         if ($photo) {
-            // Remove the old photo if it exists
             $oldPhoto = $master->photo;
             if ($oldPhoto) {
                 Storage::disk('public')->delete($oldPhoto);
             }
 
-            // Check if the photo is in Base64 format
             if (preg_match('/^data:image\/(\w+);base64,/', $photo, $matches)) {
-                // Get the file extension
                 $extension = $matches[1];
-                // Decode the Base64 string
                 $photo = base64_decode(substr($photo, strpos($photo, ',') + 1));
-                // Generate a unique file name
                 $photoName = uniqid() . '.' . $extension;
-                // Store the image in the 'photos' directory
                 Storage::disk('public')->put('photos/' . $photoName, $photo);
-                // Update the master record with the new photo path
                 $master->update(['photo' => 'photos/' . $photoName]);
             } else {
-                // Handle error: invalid Base64 image
                 throw new \Exception('The provided photo is not a valid Base64 image.');
             }
         }
-
-        return $master;
     }
+
 
     public function addReview(mixed $data): Model
     {

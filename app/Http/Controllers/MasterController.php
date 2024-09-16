@@ -8,6 +8,7 @@ use App\Http\Requests\AddReviewRequest;
 use App\Http\Requests\GetMasterRequest;
 use App\Http\Resources\MasterResource;
 use App\Http\Resources\ReviewResource;
+use App\Http\Resources\UserResource;
 use App\Http\Services\MasterService;
 use App\Http\Services\SmsService;
 use App\Models\Master;
@@ -15,6 +16,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use UserService;
 
 class MasterController extends Controller
 {
@@ -50,26 +52,27 @@ class MasterController extends Controller
         return new MasterResource($master);
     }
 
-    public function verifyAndRegister(AddMasterRequest $request, MasterService $masterService, SmsService $smsService): JsonResponse
+    public function verifyAndRegister(AddMasterRequest $request, MasterService $masterService, SmsService $smsService, UserService $userService): JsonResponse
     {
         $data = $request->validated();
+
         if (!$smsService->verifyCode($data['phone'], $data['sms_code'])) {
             return response()->json(['error' => 'Wrong code'], 400);
         }
-        $master = $masterService->firstOrCreate([
-            'phone' => $data['phone'],
-        ], $data);
+
+        $master = $masterService->createOrUpdate($data);
+
+        $user = $userService->createOrUpdateFromMaster($master);
 
         try {
-            // Генеруємо токен для новоствореного майстра
-            $token = JWTAuth::fromUser($master);
+            $token = JWTAuth::fromUser($user);
         } catch (JWTException $e) {
             return response()->json(['error' => 'Token not created '], 500);
         }
 
-        // Повертаємо токен разом з інформацією про майстра
         return response()->json([
             'master' => new MasterResource($master),
+            'user' => new UserResource($user),
             'token' => $token,
         ]);
     }

@@ -50,5 +50,5 @@ Route::group(['middleware' => 'auth:api'], function () {
 });
 
 Route::post('/time-slots', [TimeSlotController::class, 'store']);
-Route::get('/time-slots/{master_id}/{start_date}', [TimeSlotController::class, 'index']);
+Route::get('/time-slots/{start_date}', [TimeSlotController::class, 'index']);
 
