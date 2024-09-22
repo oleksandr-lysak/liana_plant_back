@@ -25,4 +25,9 @@ class TimeSlot extends Model
     {
         return $this->belongsTo(Master::class);
     }
+
+    public function service()
+    {
+        return $this->belongsTo(Speciality::class);
+    }
 }

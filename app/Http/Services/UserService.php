@@ -1,5 +1,5 @@
 <?php
-
+namespace App\Http\Services;
 use App\Models\Master;
 use App\Models\User;
 

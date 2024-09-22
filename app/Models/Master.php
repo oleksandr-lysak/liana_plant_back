@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 
-class Master extends Model implements JWTSubject
+class Master extends Model
 {
     use HasFactory;
 
@@ -74,16 +74,6 @@ class Master extends Model implements JWTSubject
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
-    }
-
-    public function getJWTIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    public function getJWTCustomClaims()
-    {
-        return [];
     }
 
     public function timeSlots(): HasMany

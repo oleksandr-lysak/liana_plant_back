@@ -11,12 +11,12 @@ use App\Http\Resources\ReviewResource;
 use App\Http\Resources\UserResource;
 use App\Http\Services\MasterService;
 use App\Http\Services\SmsService;
+use App\Http\Services\UserService;
 use App\Models\Master;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
-use UserService;
 
 class MasterController extends Controller
 {
