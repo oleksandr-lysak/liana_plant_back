@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\MasterController;
 use App\Http\Controllers\SmsVerificationController;
 use Illuminate\Http\Request;
@@ -43,6 +44,9 @@ Route::prefix('specialties')->group(function () {
 Route::prefix('auth')->group(function () {
     Route::post('/master-register',
         [MasterController::class, 'verifyAndRegister']
+    );
+    Route::post('/client-register',
+        [ClientController::class, 'register']
     );
     Route::post('/send-code', [SmsVerificationController::class, 'sendCode']);
     Route::post('/verify-code', [UserController::class, 'verifyCode']);

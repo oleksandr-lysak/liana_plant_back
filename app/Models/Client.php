@@ -12,6 +12,7 @@ class Client extends Model
     protected $fillable = [
         'phone',
         'verified_at',
+        'user_id',
     ];
     protected $casts = [
         'verified_at' => 'datetime',
