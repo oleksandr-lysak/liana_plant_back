@@ -9,6 +9,13 @@ use App\Http\Services\TimeSlotServiceInterface;
 
 class TimeSlotService implements TimeSlotServiceInterface
 {
+    /**
+     * Retrieve available time slots for a given master starting from a specific date.
+     *
+     * @param Master $master The master for whom the time slots are being retrieved.
+     * @param string $startDate The start date from which to retrieve the time slots.
+     * @return array|Collection The available time slots for the master.
+     */
     public function getSlotsForMaster(Master $master, String $startDate): array|Collection
     {
         return TimeSlot::where('master_id', $master->id)
