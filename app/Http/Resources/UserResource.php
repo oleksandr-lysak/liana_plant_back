@@ -37,9 +37,36 @@ class UserResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $master_data = null;
+        $client_data = null;
+        if ($this->master != null) {
+            $master = $this->master;
+            $master_data = [
+                'id' => $master->id,
+                'name' => $master->name,
+                'phone' => $master->phone,
+                'address' => $master->address,
+                'latitude' => $master->latitude,
+                'longitude' => $master->longitude,
+                'description' => $master->description,
+                'age' => $master->age,
+                'specialities' => $master->specialities->pluck('id'),
+                'photo' => $master->photo,
+                'speciality_id' => $master->speciality_id,
+            ];
+        }
+        if ($this->client != null) {
+            $client = $this->client;
+            $client_data = [
+                'id' => $this->id,
+                'phone' => $client->phone,
+            ];
+        }
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'master_data' => $master_data,
+            'client_data' => $client_data,
         ];
     }
 }

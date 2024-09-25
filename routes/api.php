@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeSlotController;
 use App\Http\Controllers\SpecialityController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,7 @@ Route::prefix('masters')->group(function () {
 Route::prefix('specialties')->group(function () {
     Route::get('/', [SpecialityController::class, 'index']);
     Route::get('/{id}', [SpecialityController::class, 'getSpeciality']);
+    Route::get('/get-for-master/{master_id}', [SpecialityController::class,'getSpecialitiesForMaster']);
 });
 
 Route::prefix('auth')->group(function () {
@@ -43,6 +45,7 @@ Route::prefix('auth')->group(function () {
         [MasterController::class, 'verifyAndRegister']
     );
     Route::post('/send-code', [SmsVerificationController::class, 'sendCode']);
+    Route::post('/verify-code', [UserController::class, 'verifyCode']);
 });
 
 Route::group(['middleware' => 'auth:api'], function () {
@@ -50,5 +53,5 @@ Route::group(['middleware' => 'auth:api'], function () {
 });
 
 Route::post('/time-slots', [TimeSlotController::class, 'store']);
-Route::get('/time-slots/{start_date}', [TimeSlotController::class, 'index']);
+Route::get('/time-slots/{start_date}/{masterId}', [TimeSlotController::class, 'index']);
 

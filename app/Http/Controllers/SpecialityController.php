@@ -32,4 +32,11 @@ class SpecialityController extends Controller
 
         return new SpecialityResource($speciality);
     }
+
+    public function getSpecialitiesForMaster($masterId, SpecialityService $specialityService): AnonymousResourceCollection
+    {
+        $specialities = $specialityService->getSpecialitiesForMaster($masterId);
+
+        return SpecialityResource::collection($specialities);
+    }
 }
