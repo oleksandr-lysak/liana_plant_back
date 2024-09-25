@@ -28,6 +28,18 @@ class TimeSlotController extends Controller
         return response()->json(['message' => 'Time slot updated successfully']);
     }
 
+    public function storeFromClient(StoreTimeSlotRequest $request, TimeSlotService $timeSlotService)
+    {
+        $validated = $request->validated();
+
+        $storeResult = $timeSlotService->storeTimeSlot($validated);
+        if ($storeResult['status'] == false) {
+            return response()->json(['message' => $storeResult['message']], 400);
+        }
+
+        return response()->json(['message' => 'Time slot updated successfully']);
+    }
+
     public function index(Request $request, $startDate, $masterId, TimeSlotService $timeSlotService)
     {
         try {
