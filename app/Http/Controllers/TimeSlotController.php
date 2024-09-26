@@ -12,6 +12,12 @@ use JWTAuth;
 
 class TimeSlotController extends Controller
 {
+    /**
+     * Store a newly created time slot in storage.
+     *
+     * @param  \App\Http\Requests\StoreTimeSlotRequest  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(StoreTimeSlotRequest $request)
     {
         $validated = $request->validated();
