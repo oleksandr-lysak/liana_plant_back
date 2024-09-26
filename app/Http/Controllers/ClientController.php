@@ -23,6 +23,14 @@ class ClientController extends Controller
         //
     }
 
+    /**
+     * Register a new client.
+     *
+     * @param RegisterClientRequest $request The request object containing client registration data.
+     * @param UserService $userService The service handling user-related operations.
+     * @param ClientService $clientService The service handling client-related operations.
+     * @return JsonResponse The response object containing the result of the registration process.
+     */
     public function register(RegisterClientRequest $request, UserService $userService, ClientService $clientService): JsonResponse
     {
         $validatedData = $request->validated();

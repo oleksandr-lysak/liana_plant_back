@@ -27,3 +27,4 @@ jobs:
             cd ${{ secrets.REMOTE_PATH }}
             composer install --no-interaction --prefer-dist --optimize-autoloader
             php artisan migrate
+            php artisan db:seed
