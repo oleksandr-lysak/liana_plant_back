@@ -56,7 +56,10 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/protected-route', [MasterController::class, 'protectedMethod']);
 });
 
-Route::post('/time-slots', [TimeSlotController::class, 'store']);
-Route::get('/time-slots/{start_date}/{masterId}', [TimeSlotController::class, 'index']);
-Route::post('/time-slots/store-from-client/{masterId}', [TimeSlotController::class, 'storeFromClient']);
+Route::group(['prefix' => '/time-slots'], function () {
+    Route::post('/', [TimeSlotController::class, 'store']);
+    Route::get('/{start_date}/{masterId}', [TimeSlotController::class, 'index']);
+    Route::post('/store-from-client/{masterId}', [TimeSlotController::class, 'storeFromClient']);
+});
+
 
