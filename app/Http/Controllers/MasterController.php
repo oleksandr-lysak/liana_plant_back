@@ -6,13 +6,16 @@ use App\Helpers\AddressHelper;
 use App\Http\Requests\AddMasterRequest;
 use App\Http\Requests\AddReviewRequest;
 use App\Http\Requests\GetMasterRequest;
+use App\Http\Requests\UpdateWorkScheduleRequest;
 use App\Http\Resources\MasterResource;
 use App\Http\Resources\ReviewResource;
 use App\Http\Resources\UserResource;
 use App\Http\Services\MasterService;
 use App\Http\Services\SmsService;
 use App\Http\Services\UserService;
+use App\Http\Services\WorkScheduleService;
 use App\Models\Master;
+use App\Models\WorkSchedule;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -20,7 +23,12 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 
 class MasterController extends Controller
 {
+    protected WorkScheduleService $workScheduleService;
 
+    public function __construct(WorkScheduleService $workScheduleService)
+    {
+        $this->workScheduleService = $workScheduleService;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -30,22 +38,54 @@ class MasterController extends Controller
      */
     public function index(GetMasterRequest $request, MasterService $masterService): AnonymousResourceCollection
     {
-        $lat = $request->get('lat');
-        $lng = $request->get('lng');
-        $zoom = $request->get('zoom');
+        $validatedData = $request->validated();
+        $lat = $validatedData['lat'];
+        $lng = $validatedData['lng'];
+        $zoom = $validatedData['zoom'];
+        $page = $validatedData['page'] ?? 1;
 
-        $masters = $masterService->getMastersOnDistance($request->get('page'), $lat, $lng, $zoom);
+        $filters = [
+            'name' => $validatedData['name']??null,
+            'distance' => $validatedData['distance']??null,
+            'service_id' => $validatedData['service_id']??null,
+            'rating' => $validatedData['rating']??null,
+            'available' => $validatedData['available']??null,
+        ];
+
+        $masters = $masterService->getMastersOnDistance($page, $lat, $lng, $zoom, $filters);
 
         return MasterResource::collection($masters);
     }
 
-    /**
+
+    public function updateWorkSchedule(UpdateWorkScheduleRequest $request, WorkScheduleService $scheduleService, $id)
+    {
+        $master = Master::findOrFail($id);
+
+        $scheduleData = $request->validated()['work_schedule'];
+
+        $scheduleService->updateWorkSchedule($master, $scheduleData);
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function showWorkSchedule($masterId, $dayOfWeek)
+    {
+        $master = Master::findOrFail($masterId);
+
+        $workSchedule = $this->workScheduleService->getWorkSchedule($master, $dayOfWeek);
+
+        return response()->json($workSchedule);
+    }
+
+
+/**
      * Retrieve the master resource by its ID.
      *
      * @param int $id The ID of the master resource to retrieve.
      * @return MasterResource The master resource corresponding to the given ID.
      */
-    public function getMaster($id): MasterResource
+    public function getMaster(int $id): MasterResource
     {
         $master = Master::find($id);
 

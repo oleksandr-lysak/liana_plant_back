@@ -18,11 +18,11 @@ WebApp
 
  <body class="">
   <div class="wrapper ">
-    @include('includes.sidebar')
+    @include('sidebar')
   <div class="main-panel">
-    @include('includes.header')
+    @include('header')
     @yield('content')
-    @include('includes.footer')
+    @include('footer')
 </div>
 </div>
 <!-- Core JS Files -->

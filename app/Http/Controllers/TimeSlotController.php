@@ -4,44 +4,16 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreTimeSlotRequest;
 use App\Http\Resources\TimeSlotResource;
-use App\Models\TimeSlot;
 use App\Http\Services\TimeSlotService;
-use App\Models\Master;
 use Illuminate\Http\Request;
 use JWTAuth;
 
 class TimeSlotController extends Controller
 {
-    /**
-     * Store a newly created time slot in storage.
-     *
-     * @param  \App\Http\Requests\StoreTimeSlotRequest  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreTimeSlotRequest $request)
+    public function store(StoreTimeSlotRequest $request, TimeSlotService $timeSlotService)
     {
         $validated = $request->validated();
-
-        TimeSlot::updateOrCreate(
-            [
-                'master_id' => $validated['master_id'],
-                'date' => $validated['date'],
-                'time' => $validated['time'],
-            ],
-            $validated
-        );
-
-        return response()->json(['message' => 'Time slot updated successfully']);
-    }
-
-    public function storeFromClient(StoreTimeSlotRequest $request, TimeSlotService $timeSlotService)
-    {
-        $validated = $request->validated();
-
-        $storeResult = $timeSlotService->storeTimeSlot($validated);
-        if ($storeResult['status'] == false) {
-            return response()->json(['message' => $storeResult['message']], 400);
-        }
+        $timeSlotService->storeTimeSlot($validated);
 
         return response()->json(['message' => 'Time slot updated successfully']);
     }
@@ -53,22 +25,13 @@ class TimeSlotController extends Controller
         } catch (\Exception $e) {
             $user = null;
         }
-        if ($user == null && $masterId == 0) {
-            return response()->json(['error' => 'Invalid token'], 400);
-        }
-        if ($user != null) {
-            if ($user->master == null && $masterId == 0) {
-                return response()->json(['error' => 'User is not a master'], 400);
-            }
+
+        $result = $timeSlotService->validateUserForMaster($user, $masterId);
+        if ($result['status'] == false) {
+            return response()->json(['error' => $result['message']], 400);
         }
 
-        if ($masterId != 0) {
-            $master = Master::find($masterId);
-        } else {
-            $master = $user->master;
-        }
-        $slots = $timeSlotService->getSlotsForMaster($master, $startDate);
-
+        $slots = $timeSlotService->getSlotsForMaster($result['master'], $startDate);
         return TimeSlotResource::collection($slots);
     }
 }

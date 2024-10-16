@@ -11,12 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('clients', function (Blueprint $table) {
+        Schema::create('work_schedule', function (Blueprint $table) {
             $table->id();
-            $table->string('phone');
-            $table->dateTime('verified_at')->nullable();
-            $table->foreignId('user_id')->nullable();
+            $table->unsignedBigInteger('master_id');
+            $table->tinyInteger('day_of_week');
+            $table->time('start_time');
+            $table->time('end_time');
             $table->timestamps();
+
+            $table->foreign('master_id')->references('id')->on('masters')->onDelete('cascade');
         });
     }
 
@@ -25,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('clients');
+        Schema::dropIfExists('work_schedule');
     }
 };

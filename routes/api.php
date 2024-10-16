@@ -6,7 +6,7 @@ use App\Http\Controllers\SmsVerificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\TimeSlotController;
-use App\Http\Controllers\SpecialityController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 
 /*
@@ -33,12 +33,13 @@ Route::prefix('masters')->group(function () {
     Route::get('/', [MasterController::class, 'index']);
     Route::post('/review', [MasterController::class, 'addReview']);
     Route::get('/{id}', [MasterController::class, 'getMaster']);
+    Route::post('/{id}/work-schedule', [MasterController::class, 'updateWorkSchedule']);
 });
 
-Route::prefix('specialties')->group(function () {
-    Route::get('/', [SpecialityController::class, 'index']);
-    Route::get('/{id}', [SpecialityController::class, 'getSpeciality']);
-    Route::get('/get-for-master/{master_id}', [SpecialityController::class,'getSpecialitiesForMaster']);
+Route::prefix('services')->group(function () {
+    Route::get('/', [ServiceController::class, 'index']);
+    Route::get('/{id}', [ServiceController::class, 'getService']);
+    Route::get('/get-for-master/{master_id}', [ServiceController::class,'getServicesForMaster']);
 });
 
 Route::prefix('auth')->group(function () {
@@ -61,5 +62,7 @@ Route::group(['prefix' => '/time-slots'], function () {
     Route::get('/{start_date}/{masterId}', [TimeSlotController::class, 'index']);
     Route::post('/store-from-client/{masterId}', [TimeSlotController::class, 'storeFromClient']);
 });
+
+
 
 

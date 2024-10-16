@@ -36,7 +36,7 @@ class ClientController extends Controller
         $validatedData = $request->validated();
         $user = $userService->createOrUpdateForClient($validatedData);
         $validatedData['user_id'] = $user->id;
-        $client = $clientService->createOrUpdate($validatedData);
+        $clientService->createOrUpdate($validatedData);
 
         try {
             $token = JWTAuth::fromUser($user);

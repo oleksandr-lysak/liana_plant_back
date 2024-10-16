@@ -18,12 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/fill-place-id', [\App\Http\Controllers\MasterController::class,'fillPlaceId']);
 Route::get('/',
     function () {
-        //$balance = TurboSMS::getBalanceJson();
-        $sended = TurboSMS::sendMessages('+38(063) 3605401', 'Відправляємо SMS');
-        return $sended;
-        return json_encode([
-            'status' => 'success',
-        ]);
+        return view('welcome', ['masters' => Master::paginate(10)]);
     }
 );
 

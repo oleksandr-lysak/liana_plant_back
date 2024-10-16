@@ -49,4 +49,25 @@ class TimeSlotService implements TimeSlotServiceInterface
             return ['status' => false ,'message' => 'Time slot is already taken'];
         }
     }
+
+
+    public function validateUserForMaster($user, $masterId)
+    {
+        if ($user == null && $masterId == 0) {
+            return ['status' => false, 'message' => 'Invalid token'];
+        }
+
+        if ($user != null && $user->master == null && $masterId == 0) {
+            return ['status' => false, 'message' => 'User is not a master'];
+        }
+
+        if ($masterId != 0) {
+            $master = Master::find($masterId);
+        } else {
+            $master = $user->master;
+        }
+
+        return ['status' => true, 'master' => $master];
+    }
+
 }

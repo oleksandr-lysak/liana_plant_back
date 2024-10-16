@@ -20,7 +20,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $address
  * @property mixed $age
  * @property mixed $phone
- * @property mixed $specialities
+ * @property mixed $services
  * @property mixed $photo
  * @property mixed $distance
  */
@@ -37,19 +37,11 @@ class MasterResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $rating = 0;
-        // Calculate the total rating by adding up all the review ratings
-        $this->reviews->each(function ($review) use (&$rating) {
-            $rating += $review->rating;
-        });
-        // Calculate the average rating
-        $rating = $rating / ($this->reviews->count() ? $this->reviews->count() : 1);
+        $reviews_count = $this->reviews->count();
+        $rating = $reviews_count ? $this->reviews->avg('rating') : 0;
 
-        try {
-            $address = (json_decode($this->address)->results[0]->formatted_address);
-        } catch (\Exception $e) {
-            $address = '';
-        }
+        $address = $this->getFormattedAddress($this->address);
+
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -59,16 +51,25 @@ class MasterResource extends JsonResource
             'address' => $address,
             'age' => (int)$this->age,
             'phone' => $this->phone,
-            'reviews_count' => $this->reviews_count,
-            'specialities' => $this->specialities->map(function ($speciality) {
-                return [
-                    'id' => $speciality->id,
-                    'name' => __('data.specialities.' . $speciality->name),
-                ];
-            }),
-            'rating' => $rating,
+            'reviews_count' => $reviews_count,
+            'services' => $this->services->map(fn($service) => [
+                'id' => $service->id,
+                'name' => __('data.services.' . $service->name),
+            ]),
+            'rating' => round($rating,1),
             'main_photo' => 'storage/' . $this->photo,
             'distance' => round($this->distance, 3),
+            'available' => $this->available,
         ];
     }
+
+    private function getFormattedAddress($address)
+    {
+        try {
+            return json_decode($address)->results[0]->formatted_address ?? ''; // Використання ?? для повернення пустого рядка
+        } catch (\Exception $e) {
+            return '';
+        }
+    }
+
 }

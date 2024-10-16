@@ -1,6 +1,6 @@
 <?php
 return [
-    'specialities' => [
+    'services' => [
         'pedicure' => 'Педикюр',
         'manicure' => 'Манікюр',
         'hair_coloring' => 'Фарбування волосся',

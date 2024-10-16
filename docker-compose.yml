@@ -14,6 +14,7 @@ services:
             - .:/var/www/html
         depends_on:
             - liana_plant_back_db
+            - liana_plant_back_redis
         networks:
             - liana_plant_back_network # Додаю мережу для веб-сервера
 
@@ -31,5 +32,17 @@ services:
         networks:
             - liana_plant_back_network # Додаю мережу для бази даних
 
+    liana_plant_back_redis:
+        image: redis:latest
+        ports:
+            - "6379:6379" # Стандартний порт Redis
+        networks:
+            - liana_plant_back_network # Мережа для Redis
+    redisinsight: # Оновлений сервіс RedisInsight
+        image: redislabs/redisinsight
+        ports:
+            - "8001:8001" # Відкритий порт для доступу до RedisInsight
+        networks:
+            - liana_plant_back_network
 volumes:
     db_data:

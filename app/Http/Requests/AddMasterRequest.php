@@ -31,7 +31,7 @@ class AddMasterRequest extends FormRequest
             'place_id' => 'required|string',
             'sms_code' => 'required|numeric',
             'photo' => ['required', new Base64Image()],
-            'specialty_id' => 'required|numeric',
+            'service_id' => 'required|numeric',
         ];
     }
 }

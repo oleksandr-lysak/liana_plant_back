@@ -20,7 +20,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property mixed $address
  * @property mixed $age
  * @property mixed $phone
- * @property mixed $specialities
+ * @property mixed $services
  * @property mixed $photo
  * @property mixed $distance
  */
@@ -50,9 +50,9 @@ class UserResource extends JsonResource
                 'longitude' => $master->longitude,
                 'description' => $master->description,
                 'age' => $master->age,
-                'specialities' => $master->specialities->pluck('id'),
+                'services' => $master->services->pluck('id'),
                 'photo' => $master->photo,
-                'speciality_id' => $master->speciality_id,
+                'service_id' => $master->service_id,
             ];
         }
         if ($this->client != null) {

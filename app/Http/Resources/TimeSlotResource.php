@@ -24,7 +24,7 @@ class TimeSlotResource extends JsonResource
             'client_phone' => $this->client_phone,
             'service' => [
                 'id'=>$this->id,
-                'name'=>__('data.specialities.' . $this->service->name),
+                'name'=>__('data.services.' . $this->service->name),
             ],
         ];
     }

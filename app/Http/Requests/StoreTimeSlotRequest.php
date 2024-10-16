@@ -13,7 +13,6 @@ class StoreTimeSlotRequest extends FormRequest
      */
     public function authorize()
     {
-        // Ви можете додати вашу логіку авторизації тут, або повернути true, якщо не потрібно
         return true;
     }
 

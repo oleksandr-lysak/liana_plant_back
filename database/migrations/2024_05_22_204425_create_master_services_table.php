@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateMasterSpecialityTable extends Migration
+class CreateMasterServicesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateMasterSpecialityTable extends Migration
      */
     public function up()
     {
-        Schema::create('master_speciality', function (Blueprint $table) {
+        Schema::create('master_services', function (Blueprint $table) {
             $table->id();
             $table->foreignId('master_id')->constrained()->onDelete('cascade');
-            $table->foreignId('speciality_id')->constrained()->onDelete('cascade');
+            $table->foreignId('service_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ class CreateMasterSpecialityTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('master_speciality');
+        Schema::dropIfExists('master_services');
     }
 }

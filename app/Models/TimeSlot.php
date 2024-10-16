@@ -28,6 +28,6 @@ class TimeSlot extends Model
 
     public function service()
     {
-        return $this->belongsTo(Speciality::class);
+        return $this->belongsTo(Service::class);
     }
 }

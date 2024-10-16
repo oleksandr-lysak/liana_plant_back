@@ -44,7 +44,7 @@ class Master extends Model
         'description',
         'age',
         'photo',
-        'speciality_id'
+        'service_id'
     ];
 
     public function getImageAttribute(): string
@@ -66,9 +66,9 @@ class Master extends Model
         }
     }
 
-    public function specialities(): BelongsToMany
+    public function services(): BelongsToMany
     {
-        return $this->belongsToMany(Speciality::class, 'master_speciality');
+        return $this->belongsToMany(Service::class, 'master_services');
     }
 
     public function reviews(): HasMany
@@ -76,7 +76,7 @@ class Master extends Model
         return $this->hasMany(Review::class);
     }
 
-    public function timeSlots(): HasMany
+    public function time_slots(): HasMany
     {
         return $this->hasMany(TimeSlot::class);
     }
@@ -84,5 +84,10 @@ class Master extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function workSchedules(): HasMany
+    {
+        return $this->hasMany(WorkSchedule::class);
     }
 }

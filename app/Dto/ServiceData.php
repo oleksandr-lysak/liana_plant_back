@@ -1,8 +1,8 @@
 <?php
-
+namespace App\Dto;
 use Spatie\LaravelData\Data;
 
-class SpecialityData extends Data
+class ServiceData extends Data
 {
     /**
      * Summary of __construct

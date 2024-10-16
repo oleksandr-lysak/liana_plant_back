@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('password');
             $table->integer('age');
-            $table->integer('speciality_id');
+            $table->integer('main_service_id');
             $table->decimal('longitude',12,8);
             $table->decimal('latitude',12,8);
             $table->longText('description');

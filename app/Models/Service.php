@@ -20,6 +20,6 @@ class Service extends Model
 
     public function masters(): HasMany
     {
-        return $this->hasMany(Master::class, 'speciality_id', 'id');
+        return $this->hasMany(Master::class, 'service_id', 'id');
     }
 }

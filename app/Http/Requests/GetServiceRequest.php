@@ -3,7 +3,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class GetSpecialityRequest extends FormRequest
+class GetServiceRequest extends FormRequest
 {
     public function authorize(): bool
     {

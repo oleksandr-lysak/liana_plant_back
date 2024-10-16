@@ -3,29 +3,29 @@
 namespace App\Http\Services;
 
 use App\Models\Master;
-use App\Models\Speciality;
+use App\Models\Service;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class SpecialityService
+class ServiceService
 {
     /**
      * @param Request $request
      * @return Collection|array|LengthAwarePaginator
      */
-    public function getSpecialities(Request $request): Collection|array|LengthAwarePaginator
+    public function getServices(Request $request): Collection|array|LengthAwarePaginator
     {
-        $query = Speciality::query();
+        $query = Service::query();
 
         $page = $request->input('page');
         return $query->paginate(100, ['*'], 'page', $page);
 
     }
 
-    public function getSpecialitiesForMaster(int $masterId): Collection|array|LengthAwarePaginator
+    public function getServicesForMaster(int $masterId): Collection|array|LengthAwarePaginator
     {
         $master = Master::find($masterId);
-        return $master->specialities;
+        return $master->services;
     }
 }
