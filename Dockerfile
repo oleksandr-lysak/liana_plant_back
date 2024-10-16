@@ -1,4 +1,4 @@
-# Використовуємо офіційний образ PHP 8.2
+
 FROM php:8.2
 
 # Встановлюємо необхідні розширення PHP та інструменти
@@ -34,8 +34,7 @@ RUN mkdir -p storage/app/public \
     && chown -R www-data:www-data storage \
     && chown -R www-data:www-data bootstrap/cache
 
-# Відкриваємо порт 8000, якщо ви хочете використовувати локальний сервер Laravel
+# Відкриваємо порт 8000
 EXPOSE 8000
 
-# Запускаємо команду для запуску веб-сервера PHP при старті контейнера
 CMD ["php", "artisan", "serve", "--host=0.0.0.0"]
