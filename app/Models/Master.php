@@ -22,14 +22,8 @@ class Master extends Model
         'photo',
     ];
 
-    protected $appends = [
-        'image',
-        'rating',
-        'formattedAddress'
-    ];
-
     protected $casts = [
-        'address' => 'json',
+        //'address' => 'json',
         //'phone' => CustomRawPhoneNumberCast::class.':INTERNATIONAL',
     ];
 
@@ -44,27 +38,8 @@ class Master extends Model
         'description',
         'age',
         'photo',
-        'service_id'
+        'main_service_id'
     ];
-
-    public function getImageAttribute(): string
-    {
-        return env('APP_URL').Storage::url($this->photo);
-    }
-
-    public function getRatingAttribute(): int
-    {
-        return rand(0,5);
-    }
-
-    public function getFormattedAddressAttribute(): string
-    {
-        try {
-            return json_decode($this->address)->results[1]->formatted_address;
-        } catch (\Exception $e) {
-            return '';
-        }
-    }
 
     public function services(): BelongsToMany
     {
@@ -76,7 +51,7 @@ class Master extends Model
         return $this->hasMany(Review::class);
     }
 
-    public function time_slots(): HasMany
+    public function timeSlots(): HasMany
     {
         return $this->hasMany(TimeSlot::class);
     }

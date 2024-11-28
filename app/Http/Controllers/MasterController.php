@@ -10,16 +10,15 @@ use App\Http\Requests\UpdateWorkScheduleRequest;
 use App\Http\Resources\MasterResource;
 use App\Http\Resources\ReviewResource;
 use App\Http\Resources\UserResource;
-use App\Http\Services\MasterService;
+use App\Http\Services\Master\MasterService;
 use App\Http\Services\SmsService;
 use App\Http\Services\UserService;
 use App\Http\Services\WorkScheduleService;
 use App\Models\Master;
-use App\Models\WorkSchedule;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\JWTException;
 
 class MasterController extends Controller
 {
@@ -53,7 +52,6 @@ class MasterController extends Controller
         ];
 
         $masters = $masterService->getMastersOnDistance($page, $lat, $lng, $zoom, $filters);
-
         return MasterResource::collection($masters);
     }
 
@@ -92,6 +90,9 @@ class MasterController extends Controller
         return new MasterResource($master);
     }
 
+    /**
+     * @throws Exception
+     */
     public function verifyAndRegister(AddMasterRequest $request, MasterService $masterService, SmsService $smsService, UserService $userService): JsonResponse
     {
         $data = $request->validated();
@@ -104,11 +105,7 @@ class MasterController extends Controller
 
         $user = $userService->createOrUpdateFromMaster($master);
 
-        try {
-            $token = JWTAuth::fromUser($user);
-        } catch (JWTException $e) {
-            return response()->json(['error' => 'Token not created '], 500);
-        }
+        $token = JWTAuth::fromUser($user);
 
         return response()->json([
             'master' => new MasterResource($master),
@@ -120,6 +117,8 @@ class MasterController extends Controller
     public function addReview(AddReviewRequest $request, MasterService $masterService): ReviewResource
     {
         $data = $request->validated();
+        $user = JWTAuth::user();
+        $data['user_id'] = $user->id;
         $review = $masterService->addReview($data);
 
         return new ReviewResource($review);

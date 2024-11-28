@@ -31,7 +31,9 @@ Route::get('/', function (){
 
 Route::prefix('masters')->group(function () {
     Route::get('/', [MasterController::class, 'index']);
-    Route::post('/review', [MasterController::class, 'addReview']);
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::post('/review', [MasterController::class, 'addReview']);
+    });
     Route::get('/{id}', [MasterController::class, 'getMaster']);
     Route::post('/{id}/work-schedule', [MasterController::class, 'updateWorkSchedule']);
 });
