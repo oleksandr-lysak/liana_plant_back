@@ -30,3 +30,4 @@ services:
             - liana_plant_back_network # Додаю мережу для бази даних
 volumes:
     db_data:
+    redis_data:
