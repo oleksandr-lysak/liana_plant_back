@@ -1,33 +1,40 @@
-networks:
-    liana_plant_back_network: # Змінив ім'я мережі на унікальне
+version: "3.7"
 
 services:
-    liana_plant_back_web:
+    webapp:
         build:
             context: .
             dockerfile: Dockerfile
+        working_dir: /var/www/html
+        restart: always
+        environment:
+            DB_HOST: ${DB_HOST}
+            DB_USER: ${DB_USERNAME}
+            DB_PASSWORD: ${DB_PASSWORD}
+            DB_NAME: ${DB_DATABASE}
         ports:
-            - "8002:8000"
+            - 8002:80
         volumes:
             - .:/var/www/html
         depends_on:
-            - liana_plant_back_db
+            - db
         networks:
-            - liana_plant_back_network # Додаю мережу для веб-сервера
+            - app
 
-    liana_plant_back_db:
-        image: mysql:8.3
+    db:
+        image: mysql:8.0.34
         environment:
-            MYSQL_DATABASE: laravel
-            MYSQL_USER: user
-            MYSQL_PASSWORD: password
-            MYSQL_ROOT_PASSWORD: root_password
-        ports:
-            - "3302:3306"
+            MYSQL_DATABASE: ${DB_DATABASE}
+            MYSQL_USER: ${DB_USERNAME}
+            MYSQL_PASSWORD: ${DB_PASSWORD}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
         volumes:
-            - db_data:/var/lib/mysql
+            - ./mysql:/var/lib/mysql
+        ports:
+            - 3302:3306
         networks:
-            - liana_plant_back_network # Додаю мережу для бази даних
-volumes:
-    db_data:
-    redis_data:
+            - app
+
+networks:
+    app:
+        driver: bridge
