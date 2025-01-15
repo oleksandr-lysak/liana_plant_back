@@ -27,6 +27,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/', function (){
     return true;
 });
+Route::get('/get-saved-tokens', function (){
+    $tokenService = new \App\Http\Services\FcmTokenService();
+    return $tokenService->getTokensForMasters([1001]);
+});
 
 Route::prefix('masters')->group(function () {
     Route::get('/', [MasterController::class, 'index']);
@@ -62,6 +66,8 @@ Route::prefix('auth')->group(function () {
 Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/protected-route', [MasterController::class, 'protectedMethod']);
 });
+
+
 
 
 

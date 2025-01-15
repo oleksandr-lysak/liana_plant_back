@@ -44,7 +44,7 @@ class MasterController extends Controller
         $lng = $validatedData['lng'];
         $zoom = $validatedData['zoom'];
         $page = $validatedData['page'] ?? 1;
-        $token = $validatedData['token'];
+        $fcmToken = $validatedData['fcm_token'];
 
         $filters = [
             'name' => $validatedData['name']??null,
@@ -55,7 +55,7 @@ class MasterController extends Controller
         ];
         $masters = $masterService->getMastersOnDistance($page, $lat, $lng, $zoom, $filters);
         //$masters->appends($filters);
-        $fcmTokenService->saveMasterIdsToToken($token, $masters->pluck('id')->toArray());
+        $fcmTokenService->saveMasterIdsToToken($fcmToken, $masters->pluck('id')->toArray());
         return MasterResource::collection($masters);
     }
 
@@ -123,32 +123,25 @@ class MasterController extends Controller
             ]]);
     }
 
-    /**
-     * Generate time slots for a master within the current month.
-     */
-    public function generateSlots(int $masterId, TimeSlotService $timeSlotService): JsonResponse
-    {
-        ini_set('memory_limit', '1024M');
-        ini_set('max_execution_time', 0);
-        $startDate = Carbon::now()->startOfYear();
-        $endDate = Carbon::now()->endOfYear();
-
-        $timeSlotService->generateTimeSlots($masterId, $startDate, $endDate);
-
-        return response()->json(['message' => 'Timeslots generated successfully']);
-    }
-
-    public function bookTimeSlot(BookTimeSlotRequest $request, TimeSlotService $timeSlotService, MasterStatusService $masterStatusService): JsonResponse
+    public function bookTimeSlot(BookTimeSlotRequest $request, TimeSlotService $timeSlotService, MasterStatusService $statusService, FcmTokenService $fcmTokenService): JsonResponse
     {
         $data = $request->validated();
         $timeSlot = $timeSlotService->bookTimeSlot($data);
-        $masterStatusService->updateSlotStatusWithTimeRange(
+        $statusService->updateSlotStatusWithTimeRange(
             $timeSlot->master_id,$timeSlot->start_time,$timeSlot->end_time,TimeSlotStatus::Booked->value);
-
+        $fcmTokenService->sendNotificationsToUsers([$timeSlot->master_id], json_encode([
+            'motion' => 'master_status',
+            'body' => [
+                'start_time' => $timeSlot->start_time,
+                'end_time' => $timeSlot->end_time,
+                'status' => TimeSlotStatus::Booked->value,
+            ],
+            'category' => 'service',
+        ]));
         return response()->json(['message' => 'Time slot booked successfully']);
     }
 
-    public function setFreeTimeSlot(FreeTimeSlotRequest $request, TimeSlotService $timeSlotService, MasterStatusService $masterStatusService): JsonResponse
+    public function setFreeTimeSlot(FreeTimeSlotRequest $request, TimeSlotService $timeSlotService, MasterStatusService $masterStatusService, FcmTokenService $fcmTokenService): JsonResponse
     {
         $data = $request->validated();
         $dateTime = Carbon::parse($data['date_time']);
@@ -160,6 +153,15 @@ class MasterController extends Controller
         $master_id = $timeSlot->master_id;
         $timeSlotService->setFreeTimeSlot($timeSlotId);
         $masterStatusService->updateSlotStatusWithTimeRange($master_id,$timeSlot->start_time,$timeSlot->end_time,TimeSlotStatus::Free->value);
+        $fcmTokenService->sendNotificationsToUsers([$master_id], json_encode([
+            'motion' => 'master_status',
+            'body' => [
+                'start_time' => $timeSlot->start_time,
+                'end_time' => $timeSlot->end_time,
+                'status' => TimeSlotStatus::Free->value,
+            ],
+            'category' => 'service',
+        ]));
         return response()->json(['message' => 'Time slot set free successfully']);
     }
 }

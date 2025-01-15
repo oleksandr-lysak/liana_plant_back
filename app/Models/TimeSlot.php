@@ -10,6 +10,9 @@ class TimeSlot extends Model
 {
     use HasFactory;
 
+    public mixed $master_id;
+    public mixed $start_time;
+    public mixed $end_time;
     protected $fillable = [
         'start_time',
         'end_time',
