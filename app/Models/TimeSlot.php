@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\TimeSlotStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -10,24 +11,35 @@ class TimeSlot extends Model
     use HasFactory;
 
     protected $fillable = [
+        'start_time',
+        'end_time',
         'master_id',
         'date',
-        'time',
-        'is_booked',
-        'client_name',
+        'status',
+        'client_id',
         'service_id',
-        'client_phone',
-        'source',
-        'duration',
+        'comment',
     ];
+
+    protected $casts = [
+        'status' => TimeSlotStatus::class,
+    ];
+
 
     public function master()
     {
         return $this->belongsTo(Master::class);
     }
 
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
     public function service()
     {
         return $this->belongsTo(Service::class);
     }
+
+
 }

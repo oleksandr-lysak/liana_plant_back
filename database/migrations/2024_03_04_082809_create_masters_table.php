@@ -18,9 +18,8 @@ return new class extends Migration
             $table->timestamps();
             $table->string('phone');
             $table->string('name');
-            $table->string('password');
-            $table->integer('age');
-            $table->integer('main_service_id');
+            $table->integer('age')->default(0);
+            $table->integer('service_id');
             $table->decimal('longitude',12,8);
             $table->decimal('latitude',12,8);
             $table->longText('description');

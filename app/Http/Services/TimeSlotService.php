@@ -2,72 +2,104 @@
 
 namespace App\Http\Services;
 
-use App\Models\Master;
+use App\Enums\TimeSlotStatus;
 use App\Models\TimeSlot;
-use Illuminate\Database\Eloquent\Collection;
-use App\Http\Services\TimeSlotServiceInterface;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
-class TimeSlotService implements TimeSlotServiceInterface
+class TimeSlotService
 {
     /**
-     * Retrieve available time slots for a given master starting from a specific date.
-     *
-     * @param Master $master The master for whom the time slots are being retrieved.
-     * @param string $startDate The start date from which to retrieve the time slots.
-     * @return array|Collection The available time slots for the master.
+     * Generate time slots for a given master between two dates
      */
-    public function getSlotsForMaster(Master $master, String $startDate): array|Collection
+    public function generateTimeSlots(int $masterId, Carbon $startDate, Carbon $endDate): void
     {
-        return TimeSlot::where('master_id', $master->id)
-            ->where('date', '>=', $startDate)
-            ->get();
+        // Example working hours for each day of the week
+        $workingHours = [
+            'Monday' => ['09:00', '18:00'],
+            'Tuesday' => ['09:00', '18:00'],
+            'Wednesday' => ['09:00', '18:00'],
+            'Thursday' => ['09:00', '18:00'],
+            'Friday' => ['09:00', '18:00'],
+            'Saturday' => ['10:00', '14:00'],
+            'Sunday' => null
+        ];
+
+        $currentDate = $startDate->copy();
+
+        while ($currentDate <= $endDate) {
+            // check if the current day has working hours
+            $dayOfWeek = $currentDate->format('l'); // Get the day of the week (e.g., 'Monday', 'Tuesday', etc.)
+
+            if ($workingHours[$dayOfWeek]) {
+                // if the day has working hours, create time slots for that day
+                $existingSlots = TimeSlot::where('master_id', $masterId)
+                    ->whereDate('date', $currentDate->toDateString())
+                    ->exists();
+
+                if (!$existingSlots) {
+                    $this->createTimeSlotsForDay($masterId, $currentDate, $workingHours[$dayOfWeek]);
+                }
+            }
+
+            // go to the next day
+            $currentDate->addDay();
+        }
     }
 
     /**
-     * Stores a time slot with the given validated data.
-     *
-     * @param array $validated An array of validated data for the time slot.
-     * @return array The stored time slot data.
+     * generate time slots for a given day
      */
-    public function storeTimeSlot(array $validated): array
+    private function createTimeSlotsForDay(int $masterId, Carbon $date, array $workingHours): void
     {
-        $timeSlotIsFree = (TimeSlot::where('master_id', $validated['master_id'])
-            ->where('date', $validated['date'])
-            ->where('time', $validated['time'])
-            ->first() == null);
-        if ($timeSlotIsFree) {
-            TimeSlot::updateOrCreate(
-                [
-                    'master_id' => $validated['master_id'],
-                    'date' => $validated['date'],
-                    'time' => $validated['time'],
-                ],
-                $validated
-            );
-            return ['status' => true ,'message' => 'Time slot updated successfully'];
-        } else {
-            return ['status' => false ,'message' => 'Time slot is already taken'];
+        $startTime = Carbon::createFromFormat('H:i', $workingHours[0]);
+        $endTime = Carbon::createFromFormat('H:i', $workingHours[1]);
+
+        // generate time slots for the day with 1 hour interval
+        while ($startTime < $endTime) {
+            TimeSlot::create([
+                'master_id' => $masterId,
+                'date' => $date->toDateString(),
+                'start_time' => $startTime->toTimeString(),
+                'end_time' => $startTime->copy()->addHour()->toTimeString(),
+                'status' => TimeSlotStatus::Booked,
+            ]);
+
+            // go to the next time slot
+            $startTime->addHour();
         }
     }
 
-
-    public function validateUserForMaster($user, $masterId)
+    public function bookTimeSlot(array $data): void
     {
-        if ($user == null && $masterId == 0) {
-            return ['status' => false, 'message' => 'Invalid token'];
-        }
-
-        if ($user != null && $user->master == null && $masterId == 0) {
-            return ['status' => false, 'message' => 'User is not a master'];
-        }
-
-        if ($masterId != 0) {
-            $master = Master::find($masterId);
-        } else {
-            $master = $user->master;
-        }
-
-        return ['status' => true, 'master' => $master];
+        DB::transaction(function () use ($data) {
+            TimeSlot::where('id', $data['slot_id'])
+                ->where('status', TimeSlotStatus::Free)
+                ->update([
+                    'status' => TimeSlotStatus::Booked,
+                    'client_id' => $data['client_id'],
+                    'service_id' => $data['service_id'],
+                    'comment' => $data['comment'],
+                ]);
+        });
     }
 
+    public function completeTimeSlot(int $slotId): void
+    {
+        TimeSlot::where('id', $slotId)
+            ->where('status', TimeSlotStatus::Booked)
+            ->update(['status' => TimeSlotStatus::Completed]);
+    }
+
+    public function setFreeTimeSlot(int $slotId): void
+    {
+        TimeSlot::where('id', $slotId)
+            ->where('status', TimeSlotStatus::Booked)
+            ->update([
+                'status' => TimeSlotStatus::Free,
+                'client_id' => null,
+                'service_id' => null,
+                'comment' => null,
+            ]);
+    }
 }

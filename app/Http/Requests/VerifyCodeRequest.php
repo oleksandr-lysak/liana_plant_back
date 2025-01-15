@@ -2,7 +2,6 @@
 namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
-use App\Rules\Base64Image;
 use Illuminate\Foundation\Http\FormRequest;
 
 /**

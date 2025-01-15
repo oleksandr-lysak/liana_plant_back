@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use App\Http\Casts\CustomRawPhoneNumberCast;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Facades\Storage;
-use Tymon\JWTAuth\Contracts\JWTSubject;
 
 
 class Master extends Model
@@ -29,7 +26,6 @@ class Master extends Model
 
     protected $fillable = [
         'name',
-        'email',
         'password',
         'phone',
         'address',
@@ -38,7 +34,7 @@ class Master extends Model
         'description',
         'age',
         'photo',
-        'main_service_id'
+        'service_id'
     ];
 
     public function services(): BelongsToMany
@@ -51,18 +47,9 @@ class Master extends Model
         return $this->hasMany(Review::class);
     }
 
-    public function timeSlots(): HasMany
-    {
-        return $this->hasMany(TimeSlot::class);
-    }
-
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    public function workSchedules(): HasMany
-    {
-        return $this->hasMany(WorkSchedule::class);
-    }
 }

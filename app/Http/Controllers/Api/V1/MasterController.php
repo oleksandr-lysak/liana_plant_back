@@ -1,0 +1,161 @@
+<?php
+
+namespace App\Http\Controllers\Api\V1;
+
+use App\Helpers\AddressHelper;
+use App\Http\Controllers\Controller;
+use App\Http\Requests\AddMasterRequest;
+use App\Http\Requests\AddReviewRequest;
+use App\Http\Requests\BookTimeSlotRequest;
+use App\Http\Requests\FreeTimeSlotRequest;
+use App\Http\Requests\GetMasterRequest;
+use App\Http\Resources\MasterResource;
+use App\Http\Resources\ReviewResource;
+use App\Http\Resources\UserResource;
+use App\Http\Services\FcmTokenService;
+use App\Http\Services\Master\MasterService;
+use App\Http\Services\Master\MasterStatusService;
+use App\Http\Services\SmsService;
+use App\Http\Services\TimeSlotService;
+use App\Http\Services\UserService;
+use App\Models\Master;
+use App\Models\TimeSlot;
+use Carbon\Carbon;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Tymon\JWTAuth\Facades\JWTAuth;
+
+class MasterController extends Controller
+{
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @param GetMasterRequest $request The request instance containing validation and authorization logic.
+     * @param MasterService $masterService The service instance to handle business logic related to masters.
+     * @return AnonymousResourceCollection A collection of resources to be returned as a response.
+     */
+    public function index(GetMasterRequest $request, MasterService $masterService, FcmTokenService $fcmTokenService): AnonymousResourceCollection
+    {
+        $validatedData = $request->validated();
+        $lat = $validatedData['lat'];
+        $lng = $validatedData['lng'];
+        $zoom = $validatedData['zoom'];
+        $page = $validatedData['page'] ?? 1;
+        $token = $validatedData['token'];
+
+        $filters = [
+            'name' => $validatedData['name']??null,
+            'distance' => $validatedData['distance']??null,
+            'service_id' => $validatedData['service_id']??null,
+            'rating' => $validatedData['rating']??null,
+            'available' => $validatedData['available']??null,
+        ];
+        $masters = $masterService->getMastersOnDistance($page, $lat, $lng, $zoom, $filters);
+        //$masters->appends($filters);
+        $fcmTokenService->saveMasterIdsToToken($token, $masters->pluck('id')->toArray());
+        return MasterResource::collection($masters);
+    }
+
+
+/**
+     * Retrieve the master resource by its ID.
+     *
+     * @param int $id The ID of the master resource to retrieve.
+     * @return MasterResource The master resource corresponding to the given ID.
+     */
+    public function getMaster(int $id): MasterResource
+    {
+        $master = Master::find($id);
+
+        return new MasterResource($master);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function verifyAndRegister(AddMasterRequest $request, MasterService $masterService, SmsService $smsService, UserService $userService): JsonResponse
+    {
+        $data = $request->validated();
+
+        if (!$smsService->verifyCode($data['phone'], $data['sms_code'])) {
+            return response()->json(['error' => 'Wrong code'], 400);
+        }
+
+        $master = $masterService->createOrUpdate($data);
+
+        $user = $userService->createOrUpdateFromMaster($master);
+
+        $token = JWTAuth::claims(['phone' => $user->phone])->fromUser($user);
+
+        return response()->json([
+            'master' => new MasterResource($master),
+            'user' => new UserResource($user),
+            'token' => $token,
+        ]);
+    }
+
+    public function addReview(AddReviewRequest $request, MasterService $masterService): ReviewResource
+    {
+        $data = $request->validated();
+        $user = JWTAuth::user();
+        $data['user_id'] = $user->id;
+        $review = $masterService->addReview($data);
+
+        return new ReviewResource($review);
+    }
+
+    public function fillPlaceId(): JsonResponse
+    {
+        $masters = Master::all();
+        foreach ($masters as $master) {
+            $master->address = AddressHelper::getPlaceId($master->latitude, $master->longitude);
+            $master->save();
+        }
+
+        return response()->json(['message' => 'Place id filled',
+            'masters' => [
+                'count' => $masters->count(),
+                'first' => $masters->first()->place_id,
+                'last' => $masters->last()->place_id
+            ]]);
+    }
+
+    /**
+     * Generate time slots for a master within the current month.
+     */
+    public function generateSlots(int $masterId, TimeSlotService $timeSlotService): JsonResponse
+    {
+        ini_set('memory_limit', '1024M');
+        ini_set('max_execution_time', 0);
+        $startDate = Carbon::now()->startOfYear();
+        $endDate = Carbon::now()->endOfYear();
+
+        $timeSlotService->generateTimeSlots($masterId, $startDate, $endDate);
+
+        return response()->json(['message' => 'Timeslots generated successfully']);
+    }
+
+    public function bookTimeSlot(BookTimeSlotRequest $request, TimeSlotService $timeSlotService, MasterStatusService $masterStatusService): JsonResponse
+    {
+        $data = $request->validated();
+        $timeSlotService->bookTimeSlot($data);
+        $masterStatusService->updateSlotStatusWithTTL($data['time_slot_id'], $data['client_id']);
+        return response()->json(['message' => 'Time slot booked successfully']);
+    }
+
+    public function setFreeTimeSlot(FreeTimeSlotRequest $request, TimeSlotService $timeSlotService, MasterStatusService $masterStatusService): JsonResponse
+    {
+        $data = $request->validated();
+        $dateTime = Carbon::parse($data['date_time']);
+        $timeSlotId = TimeSlot::where('date', $dateTime->toDateString())
+            ->where('start_time', $dateTime->toTimeString())
+            ->where('master_id', $data['master_id'])
+            ->firstOrFail()
+            ->id;
+        $timeSlotService->setFreeTimeSlot($timeSlotId);
+        $masterStatusService->updateSlotStatusWithTTL($timeSlotId);
+        return response()->json(['message' => 'Time slot set free successfully']);
+    }
+}

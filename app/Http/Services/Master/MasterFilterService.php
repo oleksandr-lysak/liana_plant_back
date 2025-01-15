@@ -13,7 +13,7 @@ class MasterFilterService
         }
 
         if (!empty($filters['service_id'])) {
-            $whereClauses[] = 'masters.main_service_id = :service_id';
+            $whereClauses[] = 'masters.service_id = :service_id';
             $queryParams['service_id'] = $filters['service_id'];
         }
 
@@ -27,7 +27,7 @@ class MasterFilterService
         }
 
         if (!empty($whereClauses)) {
-            $query .= ' WHERE ' . implode(' AND ', $whereClauses);
+            $query .= ' AND ' . implode(' AND ', $whereClauses);
         }
     }
 }

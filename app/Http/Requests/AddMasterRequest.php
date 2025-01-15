@@ -26,6 +26,7 @@ class AddMasterRequest extends FormRequest
             'phone' => 'required|string',
             'name' => 'required|string',
             'description' => 'required|string',
+            'address' => 'required|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
             'place_id' => 'required|string',

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Services\Master;
 
 use Illuminate\Support\Facades\DB;
@@ -7,53 +8,69 @@ class MasterSearchService
 {
     public function getMastersOnDistance(float $lat, float $lng, float $zoom, array $filters, int $perPage, int $page): array
     {
-        $max_distance = $this::calculateSearchRadius($zoom);
+        $maxDistance = $this::calculateSearchRadius($zoom);
         $offset = ($page - 1) * $perPage;
 
-        $distanceQuery = '(6371 * acos(cos(radians(' . $lat . ')) * cos(radians(latitude)) * cos(radians(longitude) - radians(' . $lng . ')) + sin(radians(' . $lat . ')) * sin(radians(latitude)))) as distance';
+        $latDelta = $maxDistance / 111; // 111 км ≈ 1° широти
+        $lngDelta = $maxDistance / (111 * cos(deg2rad($lat))); // Δ довготи залежить від широти
+
         $query = '
-            SELECT
-                masters.id,
-                masters.name,
-                masters.phone,
-                masters.address,
-                masters.latitude,
-                masters.longitude,
-                masters.description,
-                masters.age,
-                masters.photo,
-                masters.main_service_id,
-                ' . $distanceQuery . ',
-                COUNT(time_slots.id) as available,
-                COUNT(reviews.id) as reviews_count,
-                IF(COUNT(reviews.id) > 0, AVG(reviews.rating), 0) as rating
-            FROM
-                masters
-            LEFT JOIN
-                time_slots ON time_slots.master_id = masters.id
-                AND time_slots.date = CURDATE()
-                AND time_slots.is_booked = false
-                AND time_slots.time > CURTIME()
-                AND ADDDATE(CONCAT(time_slots.date, " ", time_slots.time), INTERVAL duration MINUTE) > NOW()
-            LEFT JOIN reviews ON reviews.master_id = masters.id
-        ';
+    SELECT
+        masters.id,
+        masters.name,
+        masters.phone,
+        masters.address,
+        masters.latitude,
+        masters.longitude,
+        masters.description,
+        masters.age,
+        masters.photo,
+        masters.service_id,
+        (
+            6371 * acos(
+                cos(radians(:distance_lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:distance_lng))
+                + sin(radians(:distance_lat2)) * sin(radians(latitude))
+            )
+        ) as distance,
+        true as available,
+        COALESCE(reviews_summary.reviews_count, 0) as reviews_count,
+        COALESCE(reviews_summary.rating, 0) as rating
+    FROM
+        masters
+    LEFT JOIN (
+        SELECT
+            master_id,
+            COUNT(id) as reviews_count,
+            AVG(rating) as rating
+        FROM
+            reviews
+        GROUP BY
+            master_id
+    ) as reviews_summary ON reviews_summary.master_id = masters.id
+    WHERE
+        latitude BETWEEN :min_lat AND :max_lat
+        AND longitude BETWEEN :min_lng AND :max_lng
+    ';
+        $queryParams = [
+            'distance_lat' => $lat,
+            'distance_lng' => $lng,
+            'distance_lat2' => $lat,
+            'min_lat' => $lat - $latDelta,
+            'max_lat' => $lat + $latDelta,
+            'min_lng' => $lng - $lngDelta,
+            'max_lng' => $lng + $lngDelta,
+            'max_distance' => $maxDistance,
+        ];
 
-        $queryParams = ['max_distance' => $max_distance];
-
+        // Додатково застосовуємо фільтри, якщо потрібно
         MasterFilterService::applyFilters($filters, $query, $queryParams);
-
         $query .= '
-            GROUP BY
-                masters.id
-            HAVING
-                distance <= :max_distance
-            ORDER BY
-                available DESC, distance ASC
-            LIMIT :limit OFFSET :offset
-        ';
-
-        $queryParams['limit'] = $perPage;
-        $queryParams['offset'] = $offset;
+        HAVING
+        distance <= :max_distance
+    ORDER BY
+        available DESC, distance ASC
+    ';
+        $query .= " LIMIT {$perPage} OFFSET {$offset}";
 
         return DB::select($query, $queryParams);
     }

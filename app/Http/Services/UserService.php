@@ -10,7 +10,10 @@ class UserService
     public function createOrUpdateFromMaster(Master $master)
     {
         $user = User::updateOrCreate(
-            ['name' => $master->name]
+            [
+                'phone' => $master->phone,
+            ],
+            ['name' => $master->name,]
         );
 
         $master->user()->associate($user);
@@ -22,29 +25,22 @@ class UserService
     public function createOrUpdateForClient(array $data)
     {
         return User::updateOrCreate(
-            ['name' => $data['name']]
+            [
+                'name' => $data['name'],
+                'phone' => $data['phone'],
+            ]
         );
     }
 
     public function findUserByPhone(string $phone)
     {
-        $master = Master::where('phone', $phone)->with('user')->first();
-        if ($master) {
-            return $master->user;
-        }
-
-        $client = Client::where('phone', $phone)->with('user')->first();
-        if ($client) {
-            return $client->user;
-        }
-
-        return null;
+        return User::where('phone', $phone)->first();
     }
 
     public function createTokenForUser($user)
     {
         try {
-            return JWTAuth::fromUser($user);
+            return $token = JWTAuth::claims(['phone' => $user->phone])->fromUser($user);;
         } catch (\Exception $e) {
             return null;
         }

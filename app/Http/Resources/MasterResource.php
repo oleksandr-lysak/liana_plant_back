@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Http\Services\Master\MasterStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -38,7 +39,7 @@ class MasterResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-
+        $statusService = app(MasterStatusService::class);
         return [
             'id' => (int)$this->id,
             'name' => (String)$this->name,
@@ -52,8 +53,8 @@ class MasterResource extends JsonResource
             'rating' => (float)round($this->rating, 1),
             'main_photo' => (String)'storage/' . $this->photo,
             'distance' => (float)round($this->distance, 3),
-            'main_service_id' => (int)$this->main_service_id,
-            'available' => (bool)$this->available,
+            'main_service_id' => (int)$this->service_id,
+            'available' => (bool)$statusService->isMasterFree($this->id),
         ];
 
     }

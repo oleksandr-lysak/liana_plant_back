@@ -68,43 +68,4 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs
 
 # Update npm to the latest version
-RUN npm install npm@latest -g
-
-# Copy application files
-COPY . /var/www/html
-
-RUN composer install
-RUN apt-get update && apt-get install -y time
-
-# Виводимо змінні середовища для перевірки
-RUN echo "Current APP_ENV: $APP_ENV" && \
-    cat /var/www/html/.env
-RUN echo "Test step 1" && \
-    echo "Test step 2"
-# Виконуємо npm install
-RUN echo "Installing npm dependencies..." && \
-    npm install && \
-    echo "npm dependencies installed successfully."
-
-# Додаємо більше логування для кожного етапу
-RUN set -x && \
-    echo "Starting npm install..." && \
-    npm install && \
-    echo "npm install completed." && \
-    echo "Loading environment variables from .env" && \
-    export $(cat /var/www/html/.env | xargs) && \
-    echo "Loaded environment variables:" && \
-    env && \
-    echo "APP_ENV: $APP_ENV" && \
-    if [ "$APP_ENV" = "local" ]; then \
-        echo "Running npm run dev"; \
-        npm run dev --verbose || echo "npm run dev failed"; \
-    else \
-        echo "Running npm run build"; \
-        npm run build --verbose || echo "npm run build failed"; \
-    fi && \
-    echo "NPM command completed successfully."
-
-
-
-CMD ["php-fpm"]
+RUN npm install -g npm@10

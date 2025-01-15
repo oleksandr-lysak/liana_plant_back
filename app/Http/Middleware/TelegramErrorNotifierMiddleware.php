@@ -2,14 +2,10 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\Controllers\TelegramController;
+use App\Http\Controllers\Api\V1\TelegramController;
 use Closure;
 use Exception;
-use Illuminate\Support\Facades\Log;
-use NotificationChannels\Telegram\TelegramMessage;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Telegram\Bot\Laravel\Facades\Telegram;
-use TelegramHelper;
 
 class TelegramErrorNotifierMiddleware
 {

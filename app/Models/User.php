@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -19,7 +20,7 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $fillable = [
         'name',
-        'email',
+        'phone',
         'password',
     ];
 
@@ -39,15 +40,22 @@ class User extends Authenticatable implements JWTSubject
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
+        'phone_verified_at' => 'datetime',
     ];
 
-    public function master()
+    public function getJWTCustomClaims(): array
+    {
+        return [
+            'phone' => $this->phone,
+        ];
+    }
+
+    public function master(): HasOne
     {
         return $this->hasOne(Master::class);
     }
 
-    public function client()
+    public function client(): HasOne
     {
         return $this->hasOne(Client::class);
     }
@@ -57,8 +65,9 @@ class User extends Authenticatable implements JWTSubject
         return $this->getKey();
     }
 
-    public function getJWTCustomClaims()
+    public function fcmToken(): HasOne
     {
-        return [];
+        return $this->hasOne(FcmToken::class);
     }
+
 }
