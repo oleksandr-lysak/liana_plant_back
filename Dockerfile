@@ -45,9 +45,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update -q \
       && a2enmod rewrite
 
 # Update apache conf to point to application public directory
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/*.conf
+RUN sed -ri -e 's!/var/www/!/var/www/html/public!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 # Enable headers module
 RUN a2enmod rewrite headers
 
@@ -63,9 +62,36 @@ RUN echo "file_uploads = On\n" \
 
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
+COPY laravel-worker.conf /etc/supervisor/conf.d/laravel-worker.conf
+
 # Install Node.js and npm
 RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
     apt-get install -y nodejs
 
 # Update npm to the latest version
 RUN npm install -g npm@10
+
+RUN apt-get update && apt-get install -y supervisor
+
+FROM fluent/fluentd:v1.14-1
+RUN apt-get update && apt-get install -y \
+    ruby3.0 \
+    ruby3.0-dev \
+    build-essential
+# Перемикаємось на root-користувача для інсталяції плагіна
+USER root
+# Оновлюємо Ruby до версії 3.0.0
+
+# Встановлюємо плагін для Elasticsearch
+RUN fluent-gem install fluent-plugin-elasticsearch
+
+# Повертаємось до стандартного користувача fluentd
+USER fluent
+
+# Копіюємо конфігураційний файл
+COPY ./fluentd.conf /fluentd/etc/fluentd.conf
+#CMD ["apache2-foreground"]
+CMD ["supervisord", "-n"]
+
+
+

@@ -9,71 +9,73 @@ use Illuminate\Support\Facades\Redis;
 class MasterStatusService
 {
     const REDIS_KEY_PREFIX = 'master_status:';
-    const REDIS_SLOT_PREFIX = 'master_slots:';
 
-    public function updateStatus(int $masterId, string $status): void
+    public function updateSlotStatusWithTimeRange(int $masterId, string $startTime, string $endTime, string $status): void
     {
-        Redis::set(self::REDIS_KEY_PREFIX . $masterId, $status);
-        Redis::publish('master_status_channel', json_encode([
-            'master_id' => $masterId,
+        $key = self::REDIS_KEY_PREFIX . $masterId;
+
+        // Зберігаємо початок як score, JSON як значення
+        $data = [
+            'start_time' => $startTime,
+            'end_time' => $endTime,
             'status' => $status,
-        ]));
-    }
-
-    public function updateSlotStatusWithTTL(int $slotId, ?int $clientId = null): void
-    {
-        $slot = TimeSlot::find($slotId);
-        $masterId = $slot->master_id;
-        $slotKey = self::REDIS_SLOT_PREFIX . $slotId;
-        $slotStatus = $clientId === null ? TimeSlotStatus::Free->value : TimeSlotStatus::Booked->value;
-
-        $slotData = [
-            'status' => $slotStatus,
-            'client_id' => $clientId,
         ];
-
-        $ttl = $this->calculateTTL($slot);
-        Redis::setex($slotKey, $ttl, json_encode($slotData));
-
-        $this->updateMasterStatus($masterId);
+        Redis::zadd($key, strtotime($startTime), json_encode($data));
     }
 
-    private function calculateTTL(TimeSlot $slot): int
+    public function getMasterStatus(int $masterId): string
     {
+        $key = self::REDIS_KEY_PREFIX . $masterId;
+
+        // Отримуємо всі активні часові діапазони
         $currentTimestamp = now()->timestamp;
-        $endTimestamp = strtotime($slot->end_time);
-        return max(0, $endTimestamp - $currentTimestamp);
-    }
+        $activeSlots = Redis::zrangebyscore($key, $currentTimestamp, '+inf');
 
-    public function updateMasterStatus(int $masterId): void
-    {
-        $slots = TimeSlot::where('master_id', $masterId)->get();
-        $status = TimeSlotStatus::Free->value;
-
-        foreach ($slots as $slot) {
-            $slotKey = self::REDIS_SLOT_PREFIX . $slot->id;
-            $slotData = Redis::get($slotKey);
-
-            if ($slotData) {
-                $slotData = json_decode($slotData, true);
-                if ($slotData['status'] === TimeSlotStatus::Booked->value) {
-                    $status = TimeSlotStatus::Booked->value;
-                    break;
-                }
+        foreach ($activeSlots as $slotData) {
+            $slot = json_decode($slotData, true);
+            if ($slot['status'] === TimeSlotStatus::Free->value) {
+                return TimeSlotStatus::Free->value;
             }
         }
 
-        $this->updateStatus($masterId, $status);
+        return TimeSlotStatus::Booked->value;
+    }
+
+    public function clearExpiredSlots(int $masterId): void
+    {
+        $key = self::REDIS_KEY_PREFIX . $masterId;
+
+        // Видаляємо всі записи, термін дії яких завершився
+        $currentTimestamp = now()->timestamp;
+        Redis::zremrangebyscore($key, '-inf', $currentTimestamp);
     }
 
     public function isMasterFree(int $masterId): bool
-    {
-        $status = Redis::get(self::REDIS_KEY_PREFIX . $masterId);
-
-        if ($status === null) {
-            return false;
-        }
+    {   $this->clearExpiredSlots($masterId);
+        $status = $this->getMasterStatus($masterId);
 
         return $status === TimeSlotStatus::Free->value;
+    }
+
+    public function rebuildCacheForMaster(int $masterId): void
+    {
+        $key = self::REDIS_KEY_PREFIX . $masterId;
+        if (!Redis::exists($key)) {
+            $timeSlots = TimeSlot::where('master_id', $masterId)
+                ->where('status', '!=', TimeSlotStatus::Free->value)
+                ->get();
+
+            $redisKey = 'master_status:' . $masterId;
+            Redis::del($redisKey); // Очистка старих даних
+
+            foreach ($timeSlots as $slot) {
+                $data = [
+                    'start_time' => $slot->start_time,
+                    'end_time' => $slot->end_time,
+                    'status' => $slot->status,
+                ];
+                Redis::zadd($redisKey, strtotime($slot->start_time), json_encode($data));
+            }
+        }
     }
 }

@@ -70,17 +70,25 @@ class TimeSlotService
         }
     }
 
-    public function bookTimeSlot(array $data): void
+    public function bookTimeSlot(array $data): TimeSlot
     {
-        DB::transaction(function () use ($data) {
-            TimeSlot::where('id', $data['slot_id'])
+        return DB::transaction(function () use ($data) {
+            $timeSlot = TimeSlot::where('id', $data['slot_id'])
                 ->where('status', TimeSlotStatus::Free)
-                ->update([
-                    'status' => TimeSlotStatus::Booked,
-                    'client_id' => $data['client_id'],
-                    'service_id' => $data['service_id'],
-                    'comment' => $data['comment'],
-                ]);
+                ->first();
+
+            if (!$timeSlot) {
+                throw new \Exception('Time slot not available for booking.');
+            }
+
+            $timeSlot->update([
+                'status' => TimeSlotStatus::Booked,
+                'client_id' => $data['client_id'],
+                'service_id' => $data['service_id'],
+                'comment' => $data['comment'],
+            ]);
+
+            return $timeSlot->fresh(); // Оновлює модель з бази після змін
         });
     }
 

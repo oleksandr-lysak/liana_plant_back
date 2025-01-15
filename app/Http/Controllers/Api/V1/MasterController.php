@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Enums\TimeSlotStatus;
 use App\Helpers\AddressHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddMasterRequest;
@@ -140,8 +141,10 @@ class MasterController extends Controller
     public function bookTimeSlot(BookTimeSlotRequest $request, TimeSlotService $timeSlotService, MasterStatusService $masterStatusService): JsonResponse
     {
         $data = $request->validated();
-        $timeSlotService->bookTimeSlot($data);
-        $masterStatusService->updateSlotStatusWithTTL($data['time_slot_id'], $data['client_id']);
+        $timeSlot = $timeSlotService->bookTimeSlot($data);
+        $masterStatusService->updateSlotStatusWithTimeRange(
+            $timeSlot->master_id,$timeSlot->start_time,$timeSlot->end_time,TimeSlotStatus::Booked->value);
+
         return response()->json(['message' => 'Time slot booked successfully']);
     }
 
@@ -149,13 +152,14 @@ class MasterController extends Controller
     {
         $data = $request->validated();
         $dateTime = Carbon::parse($data['date_time']);
-        $timeSlotId = TimeSlot::where('date', $dateTime->toDateString())
+        $timeSlot = TimeSlot::where('date', $dateTime->toDateString())
             ->where('start_time', $dateTime->toTimeString())
             ->where('master_id', $data['master_id'])
-            ->firstOrFail()
-            ->id;
+            ->firstOrFail();
+        $timeSlotId = $timeSlot->id;
+        $master_id = $timeSlot->master_id;
         $timeSlotService->setFreeTimeSlot($timeSlotId);
-        $masterStatusService->updateSlotStatusWithTTL($timeSlotId);
+        $masterStatusService->updateSlotStatusWithTimeRange($master_id,$timeSlot->start_time,$timeSlot->end_time,TimeSlotStatus::Free->value);
         return response()->json(['message' => 'Time slot set free successfully']);
     }
 }

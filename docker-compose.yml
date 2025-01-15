@@ -42,6 +42,31 @@ services:
             - "6302:6379"
         networks:
             - app
+    elasticsearch:
+        image: docker.elastic.co/elasticsearch/elasticsearch:7.9.3
+        environment:
+            - discovery.type=single-node
+        ports:
+            - "9201:9201"
+
+    fluentd:
+        image: fluent/fluentd:v1.14-1
+        environment:
+            - FLUENTD_CONF=fluentd.conf
+        volumes:
+            - ./fluentd.conf:/fluentd/etc/fluentd.conf
+        ports:
+            - "24224:24224"
+
+    kibana:
+        image: docker.elastic.co/kibana/kibana:7.9.3
+        environment:
+            - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+        ports:
+            - "5601:5601"
+volumes:
+    esdata:
+        driver: local
 
 networks:
     app:
