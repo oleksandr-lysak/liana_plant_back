@@ -49,7 +49,7 @@ class FcmTokenService
      */
     public function sendMessage(array $firebaseTokens, string $message, string $motion = 'master_status', string $category = 'service'): void
     {
-        $serviceAccountPath = base_path('path-to-service-account.json'); // Вкажіть шлях до JSON-файлу
+        $serviceAccountPath = base_path(config('services.fcm.fcm_token_path'));
         $accessToken = $this->getAccessToken($serviceAccountPath);
 
         $projectId = $this->getProjectId($serviceAccountPath);

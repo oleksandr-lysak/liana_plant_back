@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'fcm' => [
+        'fcm_token_path' => env('FCM_TOKEN_PATH'),
+    ]
+
 ];
