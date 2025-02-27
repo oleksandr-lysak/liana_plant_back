@@ -73,25 +73,9 @@ RUN npm install -g npm@10
 
 RUN apt-get update && apt-get install -y supervisor
 
-FROM fluent/fluentd:v1.14-1
-RUN apt-get update && apt-get install -y \
-    ruby3.0 \
-    ruby3.0-dev \
-    build-essential
-# Перемикаємось на root-користувача для інсталяції плагіна
-USER root
-# Оновлюємо Ruby до версії 3.0.0
+COPY supervisor/redis-listener.conf /etc/supervisor/conf.d/redis-listener.conf
 
-# Встановлюємо плагін для Elasticsearch
-RUN fluent-gem install fluent-plugin-elasticsearch
-
-# Повертаємось до стандартного користувача fluentd
-USER fluent
-
-# Копіюємо конфігураційний файл
-COPY ./fluentd.conf /fluentd/etc/fluentd.conf
-#CMD ["apache2-foreground"]
-CMD ["supervisord", "-n"]
+CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
 
 

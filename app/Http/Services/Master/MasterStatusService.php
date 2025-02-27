@@ -12,70 +12,21 @@ class MasterStatusService
 
     public function updateSlotStatusWithTimeRange(int $masterId, string $startTime, string $endTime, string $status): void
     {
-        $key = self::REDIS_KEY_PREFIX . $masterId;
+        $startKey = "slot:{$masterId}:start:" . strtotime($startTime);
+        $endKey = "slot:{$masterId}:end:" . strtotime($endTime);
 
-        // Зберігаємо початок як score, JSON як значення
-        $data = [
+        $data = json_encode([
+            'master_id' => $masterId,
             'start_time' => $startTime,
             'end_time' => $endTime,
             'status' => $status,
-        ];
-        Redis::zadd($key, strtotime($startTime), json_encode($data));
+        ]);
+
+        // Зберігаємо стартовий ключ із TTL до моменту старту
+        Redis::setex($startKey, strtotime($startTime) - time(), $data);
+
+        // Зберігаємо кінцевий ключ із TTL до моменту завершення
+        Redis::setex($endKey, strtotime($endTime) - time(), $data);
     }
 
-    public function getMasterStatus(int $masterId): string
-    {
-        $key = self::REDIS_KEY_PREFIX . $masterId;
-
-        // Отримуємо всі активні часові діапазони
-        $currentTimestamp = now()->timestamp;
-        $activeSlots = Redis::zrangebyscore($key, $currentTimestamp, '+inf');
-
-        foreach ($activeSlots as $slotData) {
-            $slot = json_decode($slotData, true);
-            if ($slot['status'] === TimeSlotStatus::Free->value) {
-                return TimeSlotStatus::Free->value;
-            }
-        }
-
-        return TimeSlotStatus::Booked->value;
-    }
-
-    public function clearExpiredSlots(int $masterId): void
-    {
-        $key = self::REDIS_KEY_PREFIX . $masterId;
-
-        // Видаляємо всі записи, термін дії яких завершився
-        $currentTimestamp = now()->timestamp;
-        Redis::zremrangebyscore($key, '-inf', $currentTimestamp);
-    }
-
-    public function isMasterFree(int $masterId): bool
-    {   $this->clearExpiredSlots($masterId);
-        $status = $this->getMasterStatus($masterId);
-
-        return $status === TimeSlotStatus::Free->value;
-    }
-
-    public function rebuildCacheForMaster(int $masterId): void
-    {
-        $key = self::REDIS_KEY_PREFIX . $masterId;
-        if (!Redis::exists($key)) {
-            $timeSlots = TimeSlot::where('master_id', $masterId)
-                ->where('status', '!=', TimeSlotStatus::Free->value)
-                ->get();
-
-            $redisKey = 'master_status:' . $masterId;
-            Redis::del($redisKey); // Очистка старих даних
-
-            foreach ($timeSlots as $slot) {
-                $data = [
-                    'start_time' => $slot->start_time,
-                    'end_time' => $slot->end_time,
-                    'status' => $slot->status,
-                ];
-                Redis::zadd($redisKey, strtotime($slot->start_time), json_encode($data));
-            }
-        }
-    }
 }
