@@ -26,13 +26,13 @@ class GenerateTimeSlots extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $startDate = Carbon::now()->startOfMonth();
         $endDate = Carbon::now()->endOfMonth();
 
         $masters = Master::all();
-        $timeSlotService = new TimeSlotService();
+        $timeSlotService = new TimeSlotService;
 
         $totalMasters = $masters->count();
 

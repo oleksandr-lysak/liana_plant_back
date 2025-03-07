@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Http\Requests;
-use Illuminate\Contracts\Validation\Validator;
-use Illuminate\Http\Exceptions\HttpResponseException;
+
 use App\Rules\Base64Image;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 /**
  * @property mixed $phone
@@ -16,7 +18,7 @@ class AddMasterRequest extends FormRequest
     protected function failedValidation(Validator $validator)
     {
         throw new HttpResponseException(response()->json([
-            'errors' => $validator->errors()
+            'errors' => $validator->errors(),
         ], 422));
     }
 
@@ -31,7 +33,7 @@ class AddMasterRequest extends FormRequest
             'longitude' => 'required|numeric',
             'place_id' => 'required|string',
             'sms_code' => 'required|numeric',
-            'photo' => ['required', new Base64Image()],
+            'photo' => ['required', new Base64Image],
             'service_id' => 'required|numeric',
         ];
     }

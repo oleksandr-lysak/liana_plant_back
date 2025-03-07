@@ -10,9 +10,6 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class TelegramErrorNotifierMiddleware
 {
     /**
-     * @param $request
-     * @param Closure $next
-     * @return mixed
      * @throws Exception
      */
     public function handle($request, Closure $next): mixed
@@ -21,9 +18,10 @@ class TelegramErrorNotifierMiddleware
             $response = $next($request);
             if ($response->status() == 500) {
                 $this->notifyTelegram($response->exception, $request);
-            } else if ($response->status() == 404) {
+            } elseif ($response->status() == 404) {
                 $this->notifyTelegram($response->exception, $request);
             }
+
             return $response;
         } catch (NotFoundHttpException $exception) {
             $this->notifyTelegram($exception, $request);
@@ -34,10 +32,6 @@ class TelegramErrorNotifierMiddleware
         }
     }
 
-    /**
-     * @param $exception
-     * @return void
-     */
     private function notifyTelegram($exception, $request): void
     {
         TelegramController::toTelegram($exception, $request);

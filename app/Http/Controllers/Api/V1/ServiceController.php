@@ -11,11 +11,6 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ServiceController extends Controller
 {
-    /**
-     * @param GetServiceRequest $request
-     * @param ServiceService $serviceService
-     * @return AnonymousResourceCollection
-     */
     public function index(GetServiceRequest $request, ServiceService $serviceService): AnonymousResourceCollection
     {
         $services = $serviceService->getServices($request);
@@ -23,10 +18,6 @@ class ServiceController extends Controller
         return ServiceResource::collection($services);
     }
 
-    /**
-     * @param $id
-     * @return ServiceResource
-     */
     public function getService($id): ServiceResource
     {
         $service = Service::find($id);

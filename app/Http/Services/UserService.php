@@ -1,6 +1,7 @@
 <?php
+
 namespace App\Http\Services;
-use App\Models\Client;
+
 use App\Models\Master;
 use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -13,7 +14,7 @@ class UserService
             [
                 'phone' => $master->phone,
             ],
-            ['name' => $master->name,]
+            ['name' => $master->name]
         );
 
         $master->user()->associate($user);
@@ -40,7 +41,7 @@ class UserService
     public function createTokenForUser($user)
     {
         try {
-            return $token = JWTAuth::claims(['phone' => $user->phone])->fromUser($user);;
+            return $token = JWTAuth::claims(['phone' => $user->phone])->fromUser($user);
         } catch (\Exception $e) {
             return null;
         }

@@ -3,7 +3,6 @@
 namespace App\Rules;
 
 use Illuminate\Contracts\Validation\Rule;
-use Illuminate\Support\Facades\Validator;
 
 class Base64Image implements Rule
 {
@@ -34,7 +33,7 @@ class Base64Image implements Rule
         finfo_close($f);
 
         $validMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-        if (!in_array($mimeType, $validMimeTypes)) {
+        if (! in_array($mimeType, $validMimeTypes)) {
             return false;
         }
 

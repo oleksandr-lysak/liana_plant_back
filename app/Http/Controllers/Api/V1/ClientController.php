@@ -10,8 +10,8 @@ use App\Http\Services\UserService;
 use App\Models\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Tymon\JWTAuth\Facades\JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class ClientController extends Controller
 {
@@ -26,9 +26,9 @@ class ClientController extends Controller
     /**
      * Register a new client.
      *
-     * @param RegisterClientRequest $request The request object containing client registration data.
-     * @param UserService $userService The service handling user-related operations.
-     * @param ClientService $clientService The service handling client-related operations.
+     * @param  RegisterClientRequest  $request  The request object containing client registration data.
+     * @param  UserService  $userService  The service handling user-related operations.
+     * @param  ClientService  $clientService  The service handling client-related operations.
      * @return JsonResponse The response object containing the result of the registration process.
      */
     public function register(RegisterClientRequest $request, UserService $userService, ClientService $clientService): JsonResponse
@@ -49,6 +49,7 @@ class ClientController extends Controller
             'token' => $token,
         ]);
     }
+
     /**
      * Show the form for creating a new resource.
      */

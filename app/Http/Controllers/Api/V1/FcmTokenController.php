@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Services\FcmTokenService;
-use App\Models\FcmToken;
 use Illuminate\Http\Request;
 
 class FcmTokenController extends Controller

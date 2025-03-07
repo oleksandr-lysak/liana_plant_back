@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-
 class Master extends Model
 {
     use HasFactory;
@@ -20,8 +19,8 @@ class Master extends Model
     ];
 
     protected $casts = [
-        //'address' => 'json',
-        //'phone' => CustomRawPhoneNumberCast::class.':INTERNATIONAL',
+        // 'address' => 'json',
+        // 'phone' => CustomRawPhoneNumberCast::class.':INTERNATIONAL',
     ];
 
     protected $fillable = [
@@ -34,7 +33,7 @@ class Master extends Model
         'description',
         'age',
         'photo',
-        'service_id'
+        'service_id',
     ];
 
     public function services(): BelongsToMany
@@ -51,5 +50,4 @@ class Master extends Model
     {
         return $this->belongsTo(User::class);
     }
-
 }

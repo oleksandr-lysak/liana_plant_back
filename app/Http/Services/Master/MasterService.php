@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\Storage;
 class MasterService
 {
     protected Master $model;
+
     protected PaginatorService $paginatorService;
+
     protected MasterSearchService $masterSearchService;
 
     public function __construct(Master $master, PaginatorService $paginatorService, MasterSearchService $masterSearchService)
@@ -28,8 +30,7 @@ class MasterService
         float $lng,
         float $zoom,
         array $filters
-    ): LengthAwarePaginator
-    {
+    ): LengthAwarePaginator {
         $perPage = 1000;
 
         // get masters
@@ -41,7 +42,6 @@ class MasterService
         // create paginator
         return $this->paginatorService->paginate($masters, $totalMasters, $perPage, $page);
     }
-
 
     /**
      * @throws Exception
@@ -70,19 +70,19 @@ class MasterService
             if (preg_match('/^data:image\/(\w+);base64,/', $photo, $matches)) {
                 $extension = $matches[1];
                 $photo = base64_decode(substr($photo, strpos($photo, ',') + 1));
-                $photoName = uniqid() . '.' . $extension;
-                Storage::disk('public')->put('photos/' . $photoName, $photo);
-                $master->update(['photo' => 'photos/' . $photoName]);
+                $photoName = uniqid().'.'.$extension;
+                Storage::disk('public')->put('photos/'.$photoName, $photo);
+                $master->update(['photo' => 'photos/'.$photoName]);
             } else {
                 throw new Exception('The provided photo is not a valid Base64 image.');
             }
         }
     }
 
-
     public function addReview(mixed $data): Model
     {
         $master = $this->model::find($data['master_id']);
+
         return $master->reviews()->create($data);
     }
 }

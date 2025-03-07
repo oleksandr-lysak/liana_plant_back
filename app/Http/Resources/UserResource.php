@@ -31,9 +31,6 @@ class UserResource extends JsonResource
      *
      * This method is used to transform the `Master` model into an array that can be returned as a JSON response.
      * It calculates the average rating of the master based on the reviews and returns an array containing the master's details.
-     *
-     * @param Request $request
-     * @return array
      */
     public function toArray(Request $request): array
     {
@@ -62,6 +59,7 @@ class UserResource extends JsonResource
                 'phone' => $client->phone,
             ];
         }
+
         return [
             'id' => $this->id,
             'name' => $this->name,

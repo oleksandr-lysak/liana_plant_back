@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Http\Requests\VerifyCodeRequest;
@@ -14,7 +15,7 @@ class UserController extends Controller
         $data = $request->validated();
 
         // Check if the code is correct
-        if (!$smsService->verifyCode($data['phone'], $data['sms_code'])) {
+        if (! $smsService->verifyCode($data['phone'], $data['sms_code'])) {
             return response()->json(['error' => 'Wrong code'], 400);
         }
 

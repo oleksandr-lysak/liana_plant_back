@@ -2,13 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Helpers\AddressHelper;
 use App\Models\Master;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -35,7 +33,7 @@ class MasterFactory extends Factory
             'longitude' => $longitude,
             'latitude' => $latitude,
             'password' => $password,
-            'description' => fake()->text(200) ,
+            'description' => fake()->text(200),
             'address' => fake()->address(),
             'photo' => $this->getImageUrl(),
         ];
@@ -59,10 +57,12 @@ class MasterFactory extends Factory
         });
     }
 
-    public static function getImageUrl(){
+    public static function getImageUrl()
+    {
         $files = Storage::allFiles('public');
         $randomFile = $files[rand(2, count($files) - 1)];
         $filename = str_replace('public/', '', $randomFile);
+
         return $filename;
     }
 

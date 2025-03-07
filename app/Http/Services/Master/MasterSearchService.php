@@ -78,6 +78,7 @@ class MasterSearchService
     private static function calculateSearchRadius(int $zoom): float
     {
         $earthRadiusKm = 20037.5;
+
         return $earthRadiusKm / $zoom;
     }
 }

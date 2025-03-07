@@ -10,15 +10,12 @@ use Illuminate\Pagination\LengthAwarePaginator;
 
 class ServiceService
 {
-    /**
-     * @param Request $request
-     * @return Collection|array|LengthAwarePaginator
-     */
     public function getServices(Request $request): Collection|array|LengthAwarePaginator
     {
         $query = Service::query();
 
         $page = $request->input('page');
+
         return $query->paginate(100, ['*'], 'page', $page);
 
     }
@@ -26,6 +23,7 @@ class ServiceService
     public function getServicesForMaster(int $masterId): Collection|array|LengthAwarePaginator
     {
         $master = Master::find($masterId);
+
         return $master->services;
     }
 }

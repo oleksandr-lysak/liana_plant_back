@@ -20,9 +20,10 @@ class FcmTokenService
 
     public function saveMasterIdsToToken(string $token, array $masterIds): void
     {
-        Redis::pipeline(function ($pipe) use ($token, $masterIds) {
+        $redis = Redis::connection();
+        $redis->pipeline(function ($pipe) use ($token, $masterIds) {
             foreach ($masterIds as $masterId) {
-                $pipe->sadd('masters:' . $masterId, $token);
+                $pipe->sadd('masters:'.$masterId, $token);
             }
         });
     }
@@ -31,7 +32,7 @@ class FcmTokenService
     {
         $tokens = Redis::pipeline(function ($pipe) use ($masterIds) {
             foreach ($masterIds as $masterId) {
-                $pipe->smembers('masters:' . $masterId);
+                $pipe->smembers('masters:'.$masterId);
             }
         });
 
@@ -88,23 +89,26 @@ class FcmTokenService
     private function getProjectId(string $serviceAccountPath): string
     {
         $serviceAccount = json_decode(file_get_contents($serviceAccountPath), true);
+
         return $serviceAccount['project_id'] ?? throw new Exception('Project ID not found in service account file');
     }
+
     private function getAccessToken(string $serviceAccountPath): string
     {
-        $client = new Client();
+        $client = new Client;
         $client->setAuthConfig($serviceAccountPath);
         $client->addScope('https://www.googleapis.com/auth/firebase.messaging');
         $client->useApplicationDefaultCredentials();
 
         $token = $client->fetchAccessTokenWithAssertion();
+
         return $token['access_token'];
     }
 
     private function sendRequest(string $url, string $accessToken, array $data): void
     {
         $headers = [
-            'Authorization: Bearer ' . $accessToken,
+            'Authorization: Bearer '.$accessToken,
             'Content-Type: application/json',
         ];
 

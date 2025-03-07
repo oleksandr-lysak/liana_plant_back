@@ -6,8 +6,6 @@ use App\Models\Client;
 use App\Models\Master;
 use App\Models\Review;
 use App\Models\Service;
-use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder

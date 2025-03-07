@@ -22,7 +22,7 @@ class TimeSlotService
             'Thursday' => ['09:00', '18:00'],
             'Friday' => ['09:00', '18:00'],
             'Saturday' => ['10:00', '14:00'],
-            'Sunday' => null
+            'Sunday' => null,
         ];
 
         $currentDate = $startDate->copy();
@@ -37,7 +37,7 @@ class TimeSlotService
                     ->whereDate('date', $currentDate->toDateString())
                     ->exists();
 
-                if (!$existingSlots) {
+                if (! $existingSlots) {
                     $this->createTimeSlotsForDay($masterId, $currentDate, $workingHours[$dayOfWeek]);
                 }
             }
@@ -77,13 +77,13 @@ class TimeSlotService
                 ->where('status', TimeSlotStatus::Free)
                 ->first();
 
-            if (!$timeSlot) {
+            if (! $timeSlot) {
                 throw new \Exception('Time slot not available for booking.');
             }
 
             $timeSlot->update([
                 'status' => TimeSlotStatus::Booked,
-                'client_id' => $data['client_id'],
+                'client_id' => $data['client_id'] ?? null,
                 'service_id' => $data['service_id'],
                 'comment' => $data['comment'],
             ]);

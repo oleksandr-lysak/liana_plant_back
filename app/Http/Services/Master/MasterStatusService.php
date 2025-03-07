@@ -2,18 +2,14 @@
 
 namespace App\Http\Services\Master;
 
-use App\Enums\TimeSlotStatus;
-use App\Models\TimeSlot;
 use Illuminate\Support\Facades\Redis;
 
 class MasterStatusService
 {
-    const REDIS_KEY_PREFIX = 'master_status:';
-
     public function updateSlotStatusWithTimeRange(int $masterId, string $startTime, string $endTime, string $status): void
     {
-        $startKey = "slot:{$masterId}:start:" . strtotime($startTime);
-        $endKey = "slot:{$masterId}:end:" . strtotime($endTime);
+        $startKey = "slot:{$masterId}:start:".strtotime($startTime);
+        $endKey = "slot:{$masterId}:end:".strtotime($endTime);
 
         $data = json_encode([
             'master_id' => $masterId,
@@ -28,5 +24,4 @@ class MasterStatusService
         // Зберігаємо кінцевий ключ із TTL до моменту завершення
         Redis::setex($endKey, strtotime($endTime) - time(), $data);
     }
-
 }

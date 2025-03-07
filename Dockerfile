@@ -73,9 +73,9 @@ RUN npm install -g npm@10
 
 RUN apt-get update && apt-get install -y supervisor
 
-COPY supervisor/redis-listener.conf /etc/supervisor/conf.d/redis-listener.conf
-
-CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+#COPY supervisor/redis-listener.conf /etc/supervisor/conf.d/redis-listener.conf
+#RUN rm -f /var/run/supervisor.sock
+#CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
 
 

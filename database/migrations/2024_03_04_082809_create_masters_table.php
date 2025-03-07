@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('name');
             $table->integer('age')->default(0);
             $table->integer('service_id');
-            $table->decimal('longitude',12,8);
-            $table->decimal('latitude',12,8);
+            $table->decimal('longitude', 12, 8);
+            $table->decimal('latitude', 12, 8);
             $table->longText('description');
             $table->json('address');
             $table->longText('photo');

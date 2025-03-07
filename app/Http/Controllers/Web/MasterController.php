@@ -10,7 +10,6 @@ use Inertia\Inertia;
 
 class MasterController extends Controller
 {
-
     public function index(Request $request)
     {
         $masters = Master::paginate(10);
@@ -36,5 +35,4 @@ class MasterController extends Controller
             ],
         ]);
     }
-
 }

@@ -10,9 +10,6 @@ class TimeSlot extends Model
 {
     use HasFactory;
 
-    public mixed $master_id;
-    public mixed $start_time;
-    public mixed $end_time;
     protected $fillable = [
         'start_time',
         'end_time',
@@ -28,7 +25,6 @@ class TimeSlot extends Model
         'status' => TimeSlotStatus::class,
     ];
 
-
     public function master()
     {
         return $this->belongsTo(Master::class);
@@ -43,6 +39,4 @@ class TimeSlot extends Model
     {
         return $this->belongsTo(Service::class);
     }
-
-
 }

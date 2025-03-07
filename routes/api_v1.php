@@ -23,12 +23,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-
-Route::get('/', function (){
+Route::get('/', function () {
     return true;
 });
-Route::get('/get-saved-tokens', function (){
-    $tokenService = new \App\Http\Services\FcmTokenService();
+Route::get('/get-saved-tokens', function () {
+    $tokenService = new \App\Http\Services\FcmTokenService;
+
     return $tokenService->getTokensForMasters([1001]);
 });
 
@@ -44,12 +44,13 @@ Route::prefix('masters')->group(function () {
 Route::prefix('time-slots')->group(function () {
     Route::post('/book', [MasterController::class, 'bookTimeSlot']);
     Route::post('/free', [MasterController::class, 'setFreeTimeSlot']);
+    Route::post('/book-in-redis', [MasterController::class, 'bookTimeInRedis']);
 });
 
 Route::prefix('services')->group(function () {
     Route::get('/', [ServiceController::class, 'index']);
     Route::get('/{id}', [ServiceController::class, 'getService']);
-    Route::get('/get-for-master/{master_id}', [ServiceController::class,'getServicesForMaster']);
+    Route::get('/get-for-master/{master_id}', [ServiceController::class, 'getServicesForMaster']);
 });
 
 Route::prefix('auth')->group(function () {
@@ -66,10 +67,3 @@ Route::prefix('auth')->group(function () {
 Route::group(['middleware' => 'auth:api'], function () {
     Route::get('/protected-route', [MasterController::class, 'protectedMethod']);
 });
-
-
-
-
-
-
-

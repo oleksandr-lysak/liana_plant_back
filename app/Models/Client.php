@@ -15,6 +15,7 @@ class Client extends Model
         'verified_at',
         'user_id',
     ];
+
     protected $casts = [
         'verified_at' => 'datetime',
     ];

@@ -2,10 +2,8 @@
 
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Web\MasterController;
-use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-
 
 Route::get('/', [MasterController::class, 'index'])->name('welcome');
 Route::get('/masters', [MasterController::class, 'fetchMasters'])->name('masters.fetch');

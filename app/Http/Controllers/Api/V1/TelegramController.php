@@ -24,18 +24,18 @@ class TelegramController extends Controller
         $ip = $request->getClientIp();
         $url = $request->url();
         $statusCode = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : 500;
-        $message = "*{$application}({$environment})*" . "\n";
-        $message .= "*Request ({$methodType}):* " . $url . "\n";
-        $message .= "*Error ({$statusCode}):* " . $e->getMessage() . "\n";
-        $message .= "*Module:* " . $e->getFile() . "\n";
-        $message .= "*Line:* " . $e->getLine() . "\n";
-        $message .= "*User:* " . $userName . ' (' . $userId . ')' . "\n";
-        $message .= "*IP:* " . $ip . "\n";
+        $message = "*{$application}({$environment})*"."\n";
+        $message .= "*Request ({$methodType}):* ".$url."\n";
+        $message .= "*Error ({$statusCode}):* ".$e->getMessage()."\n";
+        $message .= '*Module:* '.$e->getFile()."\n";
+        $message .= '*Line:* '.$e->getLine()."\n";
+        $message .= '*User:* '.$userName.' ('.$userId.')'."\n";
+        $message .= '*IP:* '.$ip."\n";
 
         if ($methodType === 'POST') {
             $postParams = json_encode($request->all(), JSON_PRETTY_PRINT);
-            $message .= ''. "*Post Parameters:*" .'';
-            $message .= "```json\n" . $postParams . "\n```";
+            $message .= ''.'*Post Parameters:*'.'';
+            $message .= "```json\n".$postParams."\n```";
         }
 
         $message = str_replace(['_', '[', '`'], ['\_', '\[', '\`'], $message);
@@ -68,15 +68,15 @@ class TelegramController extends Controller
             $response = json_decode($e->getResponse()->getBody()->getContents(), true);
             if ($e->getCode() === 429 && isset($response['parameters']['retry_after'])) {
                 sleep($response['parameters']['retry_after']);
+
                 return self::sendMessageToTelegram($recipient, $message);
             }
             throw $e; // Перенаправляємо виняток, якщо це не 429
         }
     }
 
-
     public function via($notifiable): array
     {
-        return ["telegram"];
+        return ['telegram'];
     }
 }

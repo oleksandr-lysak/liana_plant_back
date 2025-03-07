@@ -17,6 +17,7 @@ use App\Http\Services\FcmTokenService;
 use App\Http\Services\Master\MasterService;
 use App\Http\Services\Master\MasterStatusService;
 use App\Http\Services\SmsService;
+use App\Http\Services\TelegramService;
 use App\Http\Services\TimeSlotService;
 use App\Http\Services\UserService;
 use App\Models\Master;
@@ -24,17 +25,19 @@ use App\Models\TimeSlot;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use JsonException;
+use NotificationChannels\Telegram\Exceptions\CouldNotSendNotification;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class MasterController extends Controller
 {
-
     /**
      * Display a listing of the resource.
      *
-     * @param GetMasterRequest $request The request instance containing validation and authorization logic.
-     * @param MasterService $masterService The service instance to handle business logic related to masters.
+     * @param  GetMasterRequest  $request  The request instance containing validation and authorization logic.
+     * @param  MasterService  $masterService  The service instance to handle business logic related to masters.
      * @return AnonymousResourceCollection A collection of resources to be returned as a response.
      */
     public function index(GetMasterRequest $request, MasterService $masterService, FcmTokenService $fcmTokenService): AnonymousResourceCollection
@@ -47,23 +50,23 @@ class MasterController extends Controller
         $fcmToken = $validatedData['fcm_token'];
 
         $filters = [
-            'name' => $validatedData['name']??null,
-            'distance' => $validatedData['distance']??null,
-            'service_id' => $validatedData['service_id']??null,
-            'rating' => $validatedData['rating']??null,
-            'available' => $validatedData['available']??null,
+            'name' => $validatedData['name'] ?? null,
+            'distance' => $validatedData['distance'] ?? null,
+            'service_id' => $validatedData['service_id'] ?? null,
+            'rating' => $validatedData['rating'] ?? null,
+            'available' => $validatedData['available'] ?? null,
         ];
         $masters = $masterService->getMastersOnDistance($page, $lat, $lng, $zoom, $filters);
-        //$masters->appends($filters);
+        // $masters->appends($filters);
         $fcmTokenService->saveMasterIdsToToken($fcmToken, $masters->pluck('id')->toArray());
+
         return MasterResource::collection($masters);
     }
 
-
-/**
+    /**
      * Retrieve the master resource by its ID.
      *
-     * @param int $id The ID of the master resource to retrieve.
+     * @param  int  $id  The ID of the master resource to retrieve.
      * @return MasterResource The master resource corresponding to the given ID.
      */
     public function getMaster(int $id): MasterResource
@@ -80,7 +83,7 @@ class MasterController extends Controller
     {
         $data = $request->validated();
 
-        if (!$smsService->verifyCode($data['phone'], $data['sms_code'])) {
+        if (! $smsService->verifyCode($data['phone'], $data['sms_code'])) {
             return response()->json(['error' => 'Wrong code'], 400);
         }
 
@@ -119,8 +122,22 @@ class MasterController extends Controller
             'masters' => [
                 'count' => $masters->count(),
                 'first' => $masters->first()->place_id,
-                'last' => $masters->last()->place_id
+                'last' => $masters->last()->place_id,
             ]]);
+    }
+
+    /**
+     * @throws CouldNotSendNotification
+     * @throws JsonException
+     */
+    public function bookTimeInRedis(Request $request, MasterStatusService $statusService)
+    {
+        $data = $request->all();
+        $master = Master::find($data['master_id']);
+        $statusService->updateSlotStatusWithTimeRange($data['master_id'], $data['start_time'], $data['end_time'], $data['status']);
+        TelegramService::sendTelegramMessage('Timeslot booked for master '.$master->name.' (id:'.$data['master_id'].')');
+
+        return response()->json(['message' => 'Time slot booked successfully']);
     }
 
     public function bookTimeSlot(BookTimeSlotRequest $request, TimeSlotService $timeSlotService, MasterStatusService $statusService, FcmTokenService $fcmTokenService): JsonResponse
@@ -128,7 +145,7 @@ class MasterController extends Controller
         $data = $request->validated();
         $timeSlot = $timeSlotService->bookTimeSlot($data);
         $statusService->updateSlotStatusWithTimeRange(
-            $timeSlot->master_id,$timeSlot->start_time,$timeSlot->end_time,TimeSlotStatus::Booked->value);
+            $timeSlot->master_id, $timeSlot->start_time, $timeSlot->end_time, TimeSlotStatus::Booked->value);
         $fcmTokenService->sendNotificationsToUsers([$timeSlot->master_id], json_encode([
             'motion' => 'master_status',
             'body' => [
@@ -138,6 +155,8 @@ class MasterController extends Controller
             ],
             'category' => 'service',
         ]));
+        TelegramService::sendTelegramMessage("Timeslot booked for master $timeSlot->master_id");
+
         return response()->json(['message' => 'Time slot booked successfully']);
     }
 
@@ -152,7 +171,7 @@ class MasterController extends Controller
         $timeSlotId = $timeSlot->id;
         $master_id = $timeSlot->master_id;
         $timeSlotService->setFreeTimeSlot($timeSlotId);
-        $masterStatusService->updateSlotStatusWithTimeRange($master_id,$timeSlot->start_time,$timeSlot->end_time,TimeSlotStatus::Free->value);
+        $masterStatusService->updateSlotStatusWithTimeRange($master_id, $timeSlot->start_time, $timeSlot->end_time, TimeSlotStatus::Free->value);
         $fcmTokenService->sendNotificationsToUsers([$master_id], json_encode([
             'motion' => 'master_status',
             'body' => [
@@ -162,6 +181,7 @@ class MasterController extends Controller
             ],
             'category' => 'service',
         ]));
+
         return response()->json(['message' => 'Time slot set free successfully']);
     }
 }

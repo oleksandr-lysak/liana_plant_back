@@ -39,10 +39,12 @@ services:
         container_name: redis
         restart: always
         ports:
-            - "6302:6379"
+            - "6379:6379"
         networks:
             - app
-        command: redis-server --notify-keyspace-events Ex
+        command: redis-server --notify-keyspace-events AKE #--logfile /var/log/redis-server.log
+#        volumes:
+#            - /storage/logs/redis-server.log:/var/log/redis/redis-server.log
 networks:
     app:
         driver: bridge

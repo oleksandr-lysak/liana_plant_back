@@ -10,11 +10,12 @@ use Illuminate\Support\Facades\Log;
 class SyncRedisCommand extends Command
 {
     protected $signature = 'sync:redis';
+
     protected $description = 'Synchronize Redis with MySQL data for master statuses';
 
     public function handle()
     {
-        $masterStatusService = new MasterStatusService();
+        $masterStatusService = new MasterStatusService;
         $masters = Master::all();
 
         foreach ($masters as $master) {
@@ -23,5 +24,4 @@ class SyncRedisCommand extends Command
         Log::debug('Redis synchronization completed.');
         $this->info('Redis synchronization completed.');
     }
-
 }
