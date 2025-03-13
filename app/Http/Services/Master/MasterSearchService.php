@@ -32,7 +32,10 @@ class MasterSearchService
                 + sin(radians(:distance_lat2)) * sin(radians(latitude))
             )
         ) as distance,
-        true as available,
+        CASE
+            WHEN busy_appointments.master_id IS NOT NULL THEN false
+            ELSE true
+        END as available,
         COALESCE(reviews_summary.reviews_count, 0) as reviews_count,
         COALESCE(reviews_summary.rating, 0) as rating
     FROM
@@ -47,6 +50,11 @@ class MasterSearchService
         GROUP BY
             master_id
     ) as reviews_summary ON reviews_summary.master_id = masters.id
+    LEFT JOIN (
+        SELECT DISTINCT master_id
+        FROM appointments
+        WHERE start_time <= DATE_ADD(NOW(), INTERVAL 1 HOUR) AND end_time >= DATE_ADD(NOW(), INTERVAL 1 HOUR)
+    ) as busy_appointments ON busy_appointments.master_id = masters.id
     WHERE
         latitude BETWEEN :min_lat AND :max_lat
         AND longitude BETWEEN :min_lng AND :max_lng

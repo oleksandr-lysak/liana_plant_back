@@ -24,7 +24,7 @@ class MasterFilterService
         }
 
         if (! empty($filters['available'])) {
-            $whereClauses[] = 'COUNT(time_slots.id) > 0';
+            $whereClauses[] = 'busy_appointments.master_id IS NULL';
         }
 
         if (! empty($whereClauses)) {

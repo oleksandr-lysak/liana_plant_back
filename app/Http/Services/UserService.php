@@ -25,12 +25,19 @@ class UserService
 
     public function createOrUpdateForClient(array $data)
     {
-        return User::updateOrCreate(
-            [
+        $user = User::where('phone', $data['phone'])->first();
+
+        if ($user) {
+            $user->update([
+                'name' => $data['name'],
+            ]);
+        } else {
+            $user = User::create([
                 'name' => $data['name'],
                 'phone' => $data['phone'],
-            ]
-        );
+            ]);
+        }
+        return $user;
     }
 
     public function findUserByPhone(string $phone)

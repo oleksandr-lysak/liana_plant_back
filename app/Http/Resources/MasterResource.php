@@ -52,7 +52,7 @@ class MasterResource extends JsonResource
             'main_photo' => (string) 'storage/'.$this->photo,
             'distance' => (float) round($this->distance, 3),
             'main_service_id' => (int) $this->service_id,
-            'available' => (bool) $statusService->isMasterFree($this->id),
+            'available' => (bool) $this->available,
         ];
 
     }

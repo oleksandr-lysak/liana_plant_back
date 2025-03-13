@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\ClientController;
 use App\Http\Controllers\Api\V1\MasterController;
 use App\Http\Controllers\Api\V1\ServiceController;
 use App\Http\Controllers\Api\V1\SmsVerificationController;
 use App\Http\Controllers\UserController;
+use App\Http\Services\FcmTokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -27,7 +29,7 @@ Route::get('/', function () {
     return true;
 });
 Route::get('/get-saved-tokens', function () {
-    $tokenService = new \App\Http\Services\FcmTokenService;
+    $tokenService = new FcmTokenService;
 
     return $tokenService->getTokensForMasters([1001]);
 });
@@ -41,10 +43,10 @@ Route::prefix('masters')->group(function () {
     Route::post('/{id}/work-schedule', [MasterController::class, 'updateWorkSchedule']);
 });
 
-Route::prefix('time-slots')->group(function () {
-    Route::post('/book', [MasterController::class, 'bookTimeSlot']);
-    Route::post('/free', [MasterController::class, 'setFreeTimeSlot']);
-    Route::post('/book-in-redis', [MasterController::class, 'bookTimeInRedis']);
+Route::prefix('appointments')->group(function () {
+    Route::get('/is-busy', [AppointmentController::class, 'isBusy']);
+    Route::get('/booked-slots', [AppointmentController::class, 'bookedSlots']);
+    Route::post('/book', [AppointmentController::class, 'book']);
 });
 
 Route::prefix('services')->group(function () {

@@ -1,0 +1,70 @@
+<?php
+namespace App\Http\Services;
+
+use App\Models\Appointment;
+use Illuminate\Support\Carbon;
+
+class AppointmentService
+{
+    /**
+     * Check if the master is busy at the given time.
+     */
+    public function isMasterBusy(int $masterId, string $dateTime): bool
+    {
+        return Appointment::where('master_id', $masterId)
+            ->where('start_time', '<=', $dateTime)
+            ->where('end_time', '>', $dateTime)
+            ->exists();
+    }
+
+    /**
+     * Get all booked slots for the given master and date.
+     */
+    public function getBookedSlots(int $masterId, string $date): array
+    {
+        return Appointment::where('master_id', $masterId)
+            ->whereDate('start_time', $date)
+            ->orderBy('start_time')
+            ->get(['start_time', 'end_time'])
+            ->toArray();
+    }
+
+    /**
+     * Book a slot for the given master.
+     */
+    public function bookSlot(int $masterId, string $startTime, int $service_id, string $comment = '', int $duration = 30): ?Appointment
+    {
+        $start = Carbon::parse($startTime);
+        $end = (clone $start)->addMinutes($duration);
+
+        if ($this->isSlotAvailable($masterId, $start, $end)) {
+            return Appointment::create([
+                'master_id' => $masterId,
+                'service_id' => $service_id,
+                'client_id' => 0,
+                'start_time' => $start,
+                'end_time' => $end,
+                'comment' => $comment,
+            ]);
+        }
+
+        return null; // Slot is not available
+    }
+
+    /**
+     * Check if the slot is available for booking.
+     */
+    private function isSlotAvailable(int $masterId, Carbon $start, Carbon $end): bool
+    {
+        return !Appointment::where('master_id', $masterId)
+            ->where(function ($query) use ($start, $end) {
+                $query->whereBetween('start_time', [$start, $end])
+                    ->orWhereBetween('end_time', [$start, $end])
+                    ->orWhere(function ($query) use ($start, $end) {
+                        $query->where('start_time', '<', $start)
+                            ->where('end_time', '>', $end);
+                    });
+            })
+            ->exists();
+    }
+}

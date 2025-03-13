@@ -48,8 +48,8 @@ class UserResource extends JsonResource
                 'description' => $master->description,
                 'age' => $master->age,
                 'services' => $master->services->pluck('id'),
-                'photo' => $master->photo,
-                'service_id' => $master->service_id,
+                'main_photo' => $master->photo,
+                'main_service_id' => $master->service_id,
             ];
         }
         if ($this->client != null) {
@@ -64,8 +64,8 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'phone' => $this->phone,
-            'master_data' => $master_data,
-            'client_data' => $client_data,
+            'master' => $master_data,
+            'client' => $client_data,
         ];
     }
 }
