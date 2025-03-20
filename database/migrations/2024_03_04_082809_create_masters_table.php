@@ -23,7 +23,7 @@ return new class extends Migration
             $table->decimal('longitude', 12, 8);
             $table->decimal('latitude', 12, 8);
             $table->longText('description');
-            $table->json('address');
+            $table->longText('address');
             $table->longText('photo');
         });
     }

@@ -29,10 +29,9 @@ class MasterFactory extends Factory
             'name' => fake()->name(),
             'phone' => fake()->unique()->phoneNumber(),
             'age' => fake()->numberBetween(18, 80),
-            'main_service_id' => fake()->numberBetween(1, 5),
+            'service_id' => fake()->numberBetween(1, 5),
             'longitude' => $longitude,
             'latitude' => $latitude,
-            'password' => $password,
             'description' => fake()->text(200),
             'address' => fake()->address(),
             'photo' => $this->getImageUrl(),
@@ -51,7 +50,7 @@ class MasterFactory extends Factory
             $user->name = $master->name;
             $user->save();
             $master->update([
-                'main_service_id' => $mainService->id,
+                'service_id' => $mainService->id,
                 'user_id' => $user->id,
             ]);
         });
