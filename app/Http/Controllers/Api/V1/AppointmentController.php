@@ -50,13 +50,13 @@ class AppointmentController extends Controller
     public function book(BookTimeRequest $request, AppointmentService $appointmentService)
     {
         $data = $request->validated();
-
         $booking = $appointmentService->bookSlot(
-            $data->master_id,
-            $data->start_time,
-            $data->service_id,
-            $data->comment ?? '',
-            $data->duration ?? 30
+            $data['master_id'],
+            $data['client_phone'],
+            $data['start_time'],
+            $data['service_id'],
+            $data['comment'] ?? '',
+            $data['duration'] ?? 30
         );
 
         return $booking

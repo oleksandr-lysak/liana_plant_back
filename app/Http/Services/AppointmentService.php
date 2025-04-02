@@ -2,6 +2,7 @@
 namespace App\Http\Services;
 
 use App\Models\Appointment;
+use App\Models\Client;
 use Illuminate\Support\Carbon;
 
 class AppointmentService
@@ -32,16 +33,22 @@ class AppointmentService
     /**
      * Book a slot for the given master.
      */
-    public function bookSlot(int $masterId, string $startTime, int $service_id, string $comment = '', int $duration = 30): ?Appointment
+    public function bookSlot(int $masterId, string $clientPhone, string $startTime, int $service_id, string $comment = '', int $duration = 30): ?Appointment
     {
         $start = Carbon::parse($startTime);
         $end = (clone $start)->addMinutes($duration);
-
+        $client = Client::where('phone', $clientPhone)->first();
+        if ($client) {
+            $clientId = $client->id;
+        } else {
+            $clientId = Client::create(['phone' => $clientPhone])->id;
+        }
+        // Check if the slot is available
         if ($this->isSlotAvailable($masterId, $start, $end)) {
             return Appointment::create([
                 'master_id' => $masterId,
                 'service_id' => $service_id,
-                'client_id' => 0,
+                'client_id' => $clientId,
                 'start_time' => $start,
                 'end_time' => $end,
                 'comment' => $comment,

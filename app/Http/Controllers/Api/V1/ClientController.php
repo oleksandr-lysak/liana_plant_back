@@ -41,7 +41,7 @@ class ClientController extends Controller
         try {
             $token = JWTAuth::claims(['phone' => $user->phone])->fromUser($user);
         } catch (JWTException $e) {
-            return response()->json(['error' => 'Token not created '], 500);
+            return response()->json(['error' => 'Token not created '.$e->__toString()], 500);
         }
 
         return response()->json([
