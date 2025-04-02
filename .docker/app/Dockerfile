@@ -23,12 +23,16 @@ RUN apk update && apk add --no-cache \
     npm \
     && docker-php-ext-install -j$(nproc) pdo_mysql mysqli zip intl mbstring gd \
     && pecl install redis && docker-php-ext-enable redis \
+    && pecl install xdebug && docker-php-ext-enable xdebug \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
     && rm -rf /var/cache/apk/*
 
 WORKDIR /var/www/html
 
 COPY . /var/www/html
+
+COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
 
 RUN apk add supervisor
 

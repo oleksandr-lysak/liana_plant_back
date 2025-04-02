@@ -7,6 +7,8 @@
 /storage/*.key
 /vendor
 /.docker/mysql-data/*.*
+/.docker/mysql_data
+/.docker/mysql_data/*
 .env
 .env.backup
 .phpunit.result.cache

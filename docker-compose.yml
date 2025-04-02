@@ -44,11 +44,17 @@ services:
             QUEUE_CONNECTION: redis
             CACHE_DRIVER: redis
             SESSION_DRIVER: redis
+            XDEBUG_MODE: debug
+            XDEBUG_CONFIG: "client_host=host.docker.internal"
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
         depends_on:
             - mysql
             - redis
         networks:
             - liana_network
+        ports:
+            - "9003:9003"
 
     redis:
         image: redis:alpine
