@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+
 import { Head } from '@inertiajs/vue3';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import MasterCard from '@/Components/MasterCard.vue';
@@ -33,39 +33,80 @@ const fetchMasters = async (url = "/masters") => {
     try {
         const { data } = await axios.get(url);
         masters.value = data.masters;
-        url = url.replace('/masters', '');
-        if (url !== window.location.pathname) {
-            window.history.pushState({}, '', url);
-        }
+        updateUrl(url);
     } catch (error) {
         console.error("Помилка завантаження майстрів:", error);
     }
 };
 
+const updateUrl = (url: string) => {
+    url = url.replace('/masters', '');
+    if (url !== window.location.pathname) {
+        window.history.pushState({}, '', url);
+    }
+};
+
+const goToPreviousPage = () => {
+    if (masters.value.prev_page_url) {
+        fetchMasters(masters.value.prev_page_url);
+    }
+};
+
+const goToNextPage = () => {
+    if (masters.value.next_page_url) {
+        fetchMasters(masters.value.next_page_url);
+    }
+};
+
 onMounted(() => fetchMasters());
+
+const currentUrl = ref(window.location.href);
+
+const getMastersTitle = () => {
+    return "Список майстрів - [Назва вашого сайту]";
+};
+
+const getMastersDescription = () => {
+    return "Ознайомтесь зі списком кваліфікованих майстрів з різних спеціалізацій. Оберіть майстра, який найкраще відповідає вашим потребам.";
+};
+
+const getMastersImageUrl = () => {
+    // Ви можете використовувати логотип вашого сайту або загальне зображення для списку майстрів
+    return "URL_вашого_зображення";
+};
+
+const getMastersUrl = () => {
+    return currentUrl.value;
+};
 
 </script>
 
+
 <template>
-    <Head title="Welcome" />
+    <Head>
+        <title>{{ getMastersTitle() }}</title>
+        <meta name="description" :content="getMastersDescription()" />
+        <meta name="keywords" content="майстри, послуги, рейтинг, адреса, [ваші ключові слова]" />
+        <link rel="canonical" :href="getMastersUrl()" />
+        <meta property="og:title" :content="getMastersTitle()" />
+        <meta property="og:description" :content="getMastersDescription()" />
+        <meta property="og:image" :content="getMastersImageUrl()" />
+        <meta property="og:url" :href="getMastersUrl()" />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content="[Назва вашого сайту]" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" :content="getMastersTitle()" />
+        <meta name="twitter:description" :content="getMastersDescription()" />
+        <meta name="twitter:image" :content="getMastersImageUrl()" />
+    </Head>
+    
 
-    <AuthenticatedLayout>
-        <template #header>
-            <div class="container flex-row columns-6 text-right">
-                <div class="mr-4">
-                    <SecondaryButton>Кнопка 1</SecondaryButton>
-                </div>
-                <div class="mr-4">
-                    <SecondaryButton>Кнопка 2</SecondaryButton>
-                </div>
-            </div>
-        </template>
-
+    
         <div class="py-0 mx-auto max-w-7xl sm:px-6 lg:px-8">
-
             <MasterCard
                 v-for="master in masters.data"
                 :key="master.id"
+                :masterId="master.id"
                 :imageUrl="master.main_photo"
                 :name="master.name"
                 :address="master.address"
@@ -75,25 +116,23 @@ onMounted(() => fetchMasters());
                 :age="master.age"
             />
 
-            <!-- Пагінація -->
             <div class="flex justify-between mt-4">
                 <button
-                    :disabled="!masters.prev_page_url"
-                    @click="fetchMasters(masters.prev_page_url || '/masters')"
-                    class="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+                    v-if="masters.prev_page_url"
+                    @click="goToPreviousPage"
+                    class="px-4 py-2 bg-gray-300 rounded"
                 >
                     Назад
                 </button>
 
                 <button
-                    :disabled="!masters.next_page_url"
-                    @click="fetchMasters(masters.next_page_url || '/masters')"
-                    class="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+                    v-if="masters.next_page_url"
+                    @click="goToNextPage"
+                    class="px-4 py-2 bg-gray-300 rounded"
                 >
                     Вперед
                 </button>
             </div>
-
         </div>
-    </AuthenticatedLayout>
+    
 </template>

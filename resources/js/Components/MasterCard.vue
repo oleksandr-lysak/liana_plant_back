@@ -1,34 +1,57 @@
-<script setup lang="ts">
-defineProps<{
-    imageUrl: string;
-    name: string;
-    address: string;
-    description: string;
-    phone: string;
-    age: number;
-    rating: number;
-}>();
-</script>
-
 <template>
-    <div class="max-w-md mx-auto bg-white sm:rounded-lg dark:bg-gray-800 rounded-xl shadow-md overflow-hidden md:max-w-6xl m-4">
-        <div class="md:flex">
-            <div class="md:shrink-0">
-                <img class="h-48 w-full object-cover md:h-full md:w-48" :src="imageUrl" alt="User profile picture">
-            </div>
-            <div class="p-8">
-                <div class="uppercase tracking-wide text-sm text-indigo-500 font-semibold">{{ name }}</div>
-                <p class="mt-2 text-slate-500">"{{ description }}"</p>
-                <div class="mt-4">
-                    <span class="text-slate-900 dark:text-slate-300 font-bold">{{ address }}</span>
-                    <span class="text-slate-600 text-sm ml-2">{{ phone }}</span>
-                </div>
-                <div class="mt-4 flex items-center">
-                    <svg v-for="n in rating" :key="n" class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
-                    </svg>
-                </div>
-            </div>
+  <div
+    class="flex flex-col sm:flex-row justify-between sm:items-center dark:bg-gray-800 bg-white shadow-md mt-2 p-4 hover:shadow-xl rounded-2xl cursor-pointer transition-all duration-300">
+    
+    <!-- Ліва частина: Фото та інформація -->
+    <div class="flex flex-col sm:flex-row items-start">
+      <img
+        :src="imageUrl || 'https://i.imgur.com/aq39RMA.jpeg'"
+        class="w-24 h-24 sm:w-28 sm:h-28 rounded-lg object-cover border-2 border-gray-400 shadow-sm"
+      />
+      <div class="flex flex-col ml-0 sm:ml-4 mt-2 sm:mt-0 space-y-1">
+        <span class="font-semibold text-lg dark:text-gray-100 text-gray-800">{{ name }}</span>
+        <span class="text-sm dark:text-gray-300 text-gray-500 truncate max-w-xs sm:max-w-sm md:max-w-md lg:max-w-lg">
+          {{ description }}
+        </span>
+        <div class="flex items-center flex-wrap gap-x-2 text-sm dark:text-gray-400 text-gray-600">
+          <span>Age: {{ age }}</span>
+          <span>|</span>
+          <span>Experience: 5 years</span>
         </div>
+        <div class="flex flex-col sm:flex-row sm:items-center sm:space-x-2 text-sm dark:text-gray-400 text-gray-700">
+          <div class="flex items-center space-x-1">
+            <i class="fa fa-solid fa-location-dot"></i>
+            <span>{{ address }}</span>
+          </div>
+          <span class="hidden sm:inline">|</span>
+          <div class="flex items-center space-x-1 mt-1 sm:mt-0">
+            <i class="fa fa-solid fa-phone"></i>
+            <span>{{ phone }}</span>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Права частина: Час, рейтинг -->
+    <div class="flex flex-col sm:items-end items-start mt-4 sm:mt-0 space-y-1">
+      <span class="text-sm dark:text-gray-300 text-gray-500">2 reviews</span>
+      <div class="flex items-center space-x-1">
+        <i class="fa fa-star text-yellow-400"></i>
+        <span class="text-sm font-medium dark:text-gray-400 text-gray-600">{{ rating }}</span>
+      </div>
+    </div>
+  </div>
 </template>
+
+<script setup lang="ts">
+defineProps({
+  masterId: Number,
+  imageUrl: String,
+  description: String,
+  address: String,
+  name: String,
+  phone: String,
+  age: Number,
+  rating: Number,
+});
+</script>

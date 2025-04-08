@@ -23,6 +23,14 @@ class MasterController extends Controller
         ]);
     }
 
+    public function show(Request $request, Master $master)
+    {
+
+        return Inertia::render('Master', [
+            'master' => new MasterResource($master),
+        ]);
+    }
+
     public function fetchMasters(Request $request)
     {
         $masters = Master::paginate(20);
