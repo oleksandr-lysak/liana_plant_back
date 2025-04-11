@@ -25,7 +25,7 @@ This project is a full-featured platform for managing and browsing a **catalog o
 The API used by the mobile application is hosted in a separate repository.  
 It includes endpoints for registration, authentication, fetching masters, booking, and more.
 
-👉 [View Mobile API Repository](#)
+👉 [View Mobile API Repository](https://github.com/oleksandr-lysak/liana_plant_mobile)
 
 ## 🐳 Dockerized Environment
 
