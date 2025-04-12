@@ -53,16 +53,17 @@ class MasterResource extends JsonResource
             'distance' => (float) round($this->distance, 3),
             'main_service_id' => (int) $this->service_id,
             'available' => (bool) $this->available,
+            'slug' => (string) $this->slug
         ];
 
     }
 
     private function getFormattedAddress($address)
     {
-        try {
-            return json_decode($address)->results[0]->formatted_address ?? '';
-        } catch (\Exception $e) {
-            return '';
-        }
+        // try {
+        //     return json_decode($address)->results[0]->formatted_address ?? '';
+        // } catch (\Exception $e) {
+            return $address;
+        //}
     }
 }

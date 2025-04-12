@@ -53,8 +53,7 @@ services:
             - redis
         networks:
             - liana_network
-        ports:
-            - "9003:9003"
+        
 
     redis:
         image: redis:alpine

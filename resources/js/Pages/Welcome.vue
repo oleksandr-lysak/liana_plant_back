@@ -15,6 +15,7 @@ interface Master {
     description: string;
     phone: string;
     age: number;
+    slug: string;
 }
 
 interface MastersResponse {
@@ -113,6 +114,7 @@ const getMastersUrl = () => {
                 :rating="master.rating"
                 :description="master.description"
                 :phone="master.phone"
+                :slug="master.slug"
                 :age="master.age"
             />
 

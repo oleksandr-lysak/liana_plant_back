@@ -21,6 +21,7 @@ RUN apk update && apk add --no-cache \
     libc6-compat \
     nodejs \
     npm \
+    linux-headers \
     && docker-php-ext-install -j$(nproc) pdo_mysql mysqli zip intl mbstring gd \
     && pecl install redis && docker-php-ext-enable redis \
     && pecl install xdebug && docker-php-ext-enable xdebug \

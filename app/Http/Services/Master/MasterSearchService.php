@@ -23,6 +23,7 @@ class MasterSearchService
         masters.latitude,
         masters.longitude,
         masters.description,
+        masters.slug,
         masters.age,
         masters.photo,
         masters.service_id,

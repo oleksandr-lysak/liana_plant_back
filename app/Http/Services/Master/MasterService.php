@@ -4,6 +4,8 @@ namespace App\Http\Services\Master;
 
 use App\Http\Services\PaginatorService;
 use App\Models\Master;
+use App\Models\Service;
+use Cocur\Slugify\Slugify;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -84,5 +86,13 @@ class MasterService
         $master = $this->model::find($data['master_id']);
 
         return $master->reviews()->create($data);
+    }
+
+    public static function generateSlug(Master $master): string
+    {
+        $specialty = Service::find($master->service_id);
+        $specialtyName = $specialty->name ?? '';
+    
+        return Slugify::create()->slugify($master->name.' '.$specialtyName);
     }
 }
