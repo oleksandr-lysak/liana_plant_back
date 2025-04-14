@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.3",
         "ext-curl": "*",
+        "cocur/slugify": "^4.6",
         "daaner/turbosms": "^1.40",
         "google/apiclient": "v2.18.0",
         "inertiajs/inertia-laravel": "^2.0",

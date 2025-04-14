@@ -7,6 +7,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Debug secrets
+        run: |
+          echo "REMOTE_HOST=${{ secrets.REMOTE_HOST }}"
+          echo "REMOTE_USER=${{ secrets.REMOTE_USER }}"
+          echo "REMOTE_KEY=${{ secrets.REMOTE_KEY }}"
+          echo "REMOTE_PATH=${{ secrets.REMOTE_PATH }}"
       - uses: actions/checkout@v4
       - name: rsync deploy
         uses: burnett01/rsync-deployments@7.0.1

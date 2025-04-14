@@ -7,7 +7,7 @@ use Inertia\Inertia;
 
 Route::get('/', [MasterController::class, 'index'])->name('welcome');
 Route::get('/masters', [MasterController::class, 'fetchMasters'])->name('masters.fetch');
-Route::get('/masters/{master}', [MasterController::class, 'show'])->name('masters.show');
+Route::get('/masters/{slug}', [MasterController::class, 'show'])->name('masters.show');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

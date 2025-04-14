@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\User;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
@@ -15,9 +16,11 @@ class ReviewResource extends JsonResource
 {
     public function toArray($request): array
     {
+        
         return [
             'id' => $this->id,
-            'name' => $this->review,
+            //'user_name' => $this->userName,
+            'comment' => $this->review,
             'rating' => $this->rating,
             'master_id' => $this->master_id,
         ];

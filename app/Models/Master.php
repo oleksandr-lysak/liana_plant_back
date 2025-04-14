@@ -34,6 +34,7 @@ class Master extends Model
         'age',
         'photo',
         'service_id',
+        'slug',
     ];
 
     public function services(): BelongsToMany
