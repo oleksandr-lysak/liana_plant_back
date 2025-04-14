@@ -50,5 +50,8 @@ RUN git config --global --add safe.directory /var/www/html
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
+RUN mkdir -p /var/www/html/vendor \
+    && chown -R www-data:www-data /var/www/html
+    
 USER www-data
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
