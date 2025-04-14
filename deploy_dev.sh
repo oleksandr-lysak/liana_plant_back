@@ -7,7 +7,9 @@ git fetch origin develop
 git reset --hard origin/develop
 
 echo "🐳 Rebuilding Docker containers..."
+
+sudo chmod -R 777 /home/lianaplant/package-lock.json
 docker-compose down
-docker-compose up
+docker-compose up 
 
 echo "✅ Done"
