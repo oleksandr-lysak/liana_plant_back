@@ -51,15 +51,7 @@ COPY entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
 RUN mkdir -p /var/www/html/vendor \
-    && chown -R www-data:www-data /var/www/html
-
-RUN chown -R www-data:www-data /var/www/html/app \
-    && chmod -R 775 /var/www/html/app/storage
-
-RUN chown -R www-data:www-data /var/www/html/public \
-    && chmod -R 775 /var/www/html/public
-
-
+    && chown -R www-data:www-data /var/www/html/vendor
 
 USER www-data
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
