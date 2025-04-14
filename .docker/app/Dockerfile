@@ -54,4 +54,7 @@ RUN mkdir -p /var/www/html/vendor \
     && chown -R www-data:www-data /var/www/html/vendor
 
 USER www-data
+
+RUN composer install --no-scripts --no-progress --no-interaction --prefer-dist
+
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
