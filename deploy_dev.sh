@@ -8,6 +8,6 @@ git reset --hard origin/develop
 
 echo "🐳 Rebuilding Docker containers..."
 docker-compose down
-docker-compose up --build
+docker-compose up
 
 echo "✅ Done"
