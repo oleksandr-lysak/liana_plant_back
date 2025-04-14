@@ -24,6 +24,15 @@ yarn-error.log
 /.docker/mysql_data/ibtmp1
 /html/storage/logs/laravel.log
 /lianaplant-5dcd8-firebase-adminsdk-ar2y2-24c7e55d27.json
+/.docker/mysql_data/bin*.*
+/.docker/mysql_data/auto.cnf
+/.docker/mysql_data/ca-cert.pem
+/.docker/mysql_data/client-cert.pem
+/.docker/mysql_data/client-key.pem
+/.docker/mysql_data/ib_logfile*
+/.docker/mysql_data/ca.pem
+/.docker/mysql_data/client-cert.pem
+/.docker/mysql_data/client-key.pem
 /.docker/mysql_data/binlog.000001
 /.docker/mysql_data/binlog.000002
 /.docker/mysql_data/binlog.000003
@@ -34,7 +43,9 @@ yarn-error.log
 /.docker/mysql_data/client-key.pem
 /.docker/mysql_data/mysql.ibd
 /.docker/mysql_data/private_key.pem
+/.docker/mysql_data/public_key.pem
 /.docker/mysql_data/server-key.pem
+/.docker/mysql_data/server-cert.pem
 /.docker/mysql_data/undo_001
 /.docker/mysql_data/undo_002
 /.docker/mysql_data/#ib_16384_0.dblwr
