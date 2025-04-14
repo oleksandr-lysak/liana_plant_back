@@ -23,4 +23,4 @@ jobs:
 
       - name: 🚀 Run remote deploy script
         run: |
-          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "bash /home/lianaplant/deploy.sh"
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "bash /home/lianaplant/deploy_dev.sh"
