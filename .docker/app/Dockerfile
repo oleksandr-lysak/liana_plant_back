@@ -53,8 +53,13 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 RUN mkdir -p /var/www/html/vendor \
     && chown -R www-data:www-data /var/www/html
 
-RUN chown -R www-data:www-data /var/www/app \
-    && chmod -R 775 /var/www/app/storage
+RUN chown -R www-data:www-data /var/www/html/app \
+    && chmod -R 775 /var/www/html/app/storage
+
+RUN chown -R www-data:www-data /var/www/html/public \
+    && chmod -R 775 /var/www/html/public
+
+
 
 USER www-data
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
