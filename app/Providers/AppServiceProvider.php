@@ -23,10 +23,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (env('APP_ENV') === 'production') {
+            URL::forceScheme('https');
+        }
         Master::observe(MasterObserver::class);
         Inertia::share('translations', function () {
             $locale = app()->getLocale();
-            dd($locale);
+        
             $path = resource_path("lang/{$locale}.json");
 
             if (!File::exists($path)) {
