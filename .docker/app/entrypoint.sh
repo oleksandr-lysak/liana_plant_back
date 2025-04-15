@@ -3,7 +3,11 @@
 set -e
 
 git config --global --add safe.directory /var/www/html
-sudo chmod -R 777 /var/www/html/package-lock.json
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
+chmod -R 775 /var/www/html/package-lock.json
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
 npm install
 npm run build
 php artisan migrate
