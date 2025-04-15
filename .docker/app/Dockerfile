@@ -1,4 +1,5 @@
 ARG PHP_VERSION
+ARG APP_ENV
 
 FROM php:${PHP_VERSION}-fpm-alpine
 
@@ -32,7 +33,7 @@ WORKDIR /var/www/html
 
 COPY . /var/www/html
 
-COPY xdebug.ini /usr/local/etc/php/conf.d/xdebug.ini
+COPY xdebug.ini /tmp/xdebug.ini
 
 RUN apk add supervisor
 

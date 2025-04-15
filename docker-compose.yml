@@ -33,6 +33,7 @@ services:
             dockerfile: Dockerfile
             args:
                 PHP_VERSION: 8.3
+                APP_ENV: ${APP_ENV}
         volumes:
             - ./:/var/www/html
         environment:
@@ -46,6 +47,9 @@ services:
             SESSION_DRIVER: redis
             XDEBUG_MODE: debug
             XDEBUG_CONFIG: "client_host=host.docker.internal"
+            APP_ENV: ${APP_ENV}
+            TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
+            TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
         extra_hosts:
             - "host.docker.internal:host-gateway"
         depends_on:
