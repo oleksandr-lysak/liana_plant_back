@@ -10,6 +10,6 @@ echo "🐳 Rebuilding Docker containers..."
 
 sudo chmod -R 777 /home/lianaplant/package-lock.json
 docker-compose down
-docker-compose up 
+docker-compose up -d
 
 echo "✅ Done"
