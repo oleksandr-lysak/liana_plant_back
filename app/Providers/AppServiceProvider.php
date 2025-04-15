@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Master;
 use App\Observers\MasterObserver;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
