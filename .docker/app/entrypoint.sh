@@ -1,5 +1,6 @@
 #!/bin/sh
-
+set -euo pipefail
+trap 'echo "Error on line $LINENO"' ERR
 
 if [ ! -z "$TELEGRAM_TOKEN" ] && [ ! -z "$TELEGRAM_CHAT_ID" ]; then
     MESSAGE="✅ Deploy has been start <b>$(hostname)</b> enviroment <code>$APP_ENV</code> 🚀"
@@ -9,7 +10,7 @@ if [ ! -z "$TELEGRAM_TOKEN" ] && [ ! -z "$TELEGRAM_CHAT_ID" ]; then
         -d parse_mode="HTML"
 fi
 
-set -e
+
 
 git config --global --add safe.directory /var/www/html
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
