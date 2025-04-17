@@ -4,10 +4,14 @@ import vue from '@vitejs/plugin-vue';
 
 export default defineConfig(({ mode }) => {
     process.env.NODE_ENV = mode;
-    
+
 
     return {
         base: '/build/',
+        server: {
+            https: false,
+            host: true,
+        },
         plugins: [
             laravel({
                 input: [
