@@ -36,6 +36,8 @@ services:
                 APP_ENV: ${APP_ENV}
         volumes:
             - ./:/var/www/html
+        ports:
+            - "9000:9000"
         environment:
             DB_HOST: mysql
             DB_DATABASE: ${DB_DATABASE}
