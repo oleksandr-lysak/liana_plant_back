@@ -33,6 +33,7 @@ WORKDIR /var/www/html
 
 COPY . /var/www/html
 
+
 COPY xdebug.ini /tmp/xdebug.ini
 
 RUN apk add supervisor
