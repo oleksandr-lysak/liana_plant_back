@@ -57,10 +57,12 @@ services:
             - redis
         networks:
             - liana_network
-        
+
 
     redis:
         image: redis:alpine
+        ports:
+            - "6372:6379"
         networks:
             - liana_network
 
