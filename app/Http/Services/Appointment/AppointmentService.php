@@ -1,9 +1,10 @@
 <?php
-namespace App\Http\Services;
+namespace App\Http\Services\Appointment;
 
 use App\Models\Appointment;
 use App\Models\Client;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Redis;
 
 class AppointmentService
 {
