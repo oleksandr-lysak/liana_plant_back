@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\GetServiceRequest;
-use App\Http\Resources\ServiceResource;
+use App\Http\Resources\Api\V1\ServiceResource;
 use App\Http\Services\ServiceService;
 use App\Models\Service;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;

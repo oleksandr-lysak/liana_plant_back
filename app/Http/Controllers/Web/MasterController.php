@@ -3,17 +3,16 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\MasterResource;
+use App\Http\Resources\Web\MasterResource;
 use App\Models\Master;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Inertia\Response;
 
 class MasterController extends Controller
 {
-    public function index(Request $request)
+    public function index(): Response
     {
-        $masters = Master::paginate(10);
-
         return Inertia::render('Welcome', [
             'masters' => [
                 'data' => [],
@@ -30,7 +29,7 @@ class MasterController extends Controller
             'reviews' ,
             'services',
         ]);
-        
+
         return Inertia::render('Master', [
             'master' => new MasterResource($master),
         ]);

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Api\V1;
 
 use App\Http\Services\Master\MasterStatusService;
 use Illuminate\Http\Request;
@@ -53,7 +53,7 @@ class MasterResource extends JsonResource
             'distance' => (float) round($this->distance, 3),
             'main_service_id' => (int) $this->service_id,
             'available' => (bool) $this->available,
-            'slug' => (string) $this->slug
+            'slug' => (string) $this->slug,
         ];
 
     }
