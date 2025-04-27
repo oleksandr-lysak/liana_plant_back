@@ -2,33 +2,22 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Enums\TimeSlotStatus;
 use App\Helpers\AddressHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddMasterRequest;
 use App\Http\Requests\AddReviewRequest;
-use App\Http\Requests\BookTimeSlotRequest;
-use App\Http\Requests\FreeTimeSlotRequest;
 use App\Http\Requests\GetMasterRequest;
 use App\Http\Resources\Api\V1\MasterResource;
 use App\Http\Resources\Api\V1\ReviewResource;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Http\Services\FcmTokenService;
 use App\Http\Services\Master\MasterService;
-use App\Http\Services\Master\MasterStatusService;
 use App\Http\Services\SmsService;
-use App\Http\Services\TelegramService;
-use App\Http\Services\TimeSlotService;
 use App\Http\Services\UserService;
 use App\Models\Master;
-use App\Models\TimeSlot;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use JsonException;
-use NotificationChannels\Telegram\Exceptions\CouldNotSendNotification;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class MasterController extends Controller
@@ -124,64 +113,5 @@ class MasterController extends Controller
                 'first' => $masters->first()->place_id,
                 'last' => $masters->last()->place_id,
             ]]);
-    }
-
-    /**
-     * @throws CouldNotSendNotification
-     * @throws JsonException
-     */
-    public function bookTimeInRedis(Request $request, MasterStatusService $statusService)
-    {
-        $data = $request->all();
-        $master = Master::find($data['master_id']);
-        $statusService->updateSlotStatusWithTimeRange($data['master_id'], $data['start_time'], $data['end_time'], $data['status']);
-        TelegramService::sendTelegramMessage('Timeslot booked for master '.$master->name.' (id:'.$data['master_id'].')');
-
-        return response()->json(['message' => 'Time slot booked successfully']);
-    }
-
-    public function bookTimeSlot(BookTimeSlotRequest $request, TimeSlotService $timeSlotService, MasterStatusService $statusService, FcmTokenService $fcmTokenService): JsonResponse
-    {
-        $data = $request->validated();
-        $timeSlot = $timeSlotService->bookTimeSlot($data);
-        $statusService->updateSlotStatusWithTimeRange(
-            $timeSlot->master_id, $timeSlot->start_time, $timeSlot->end_time, TimeSlotStatus::Booked->value);
-        $fcmTokenService->sendNotificationsToUsers([$timeSlot->master_id], json_encode([
-            'motion' => 'master_status',
-            'body' => [
-                'start_time' => $timeSlot->start_time,
-                'end_time' => $timeSlot->end_time,
-                'status' => TimeSlotStatus::Booked->value,
-            ],
-            'category' => 'service',
-        ]));
-        TelegramService::sendTelegramMessage("Timeslot booked for master $timeSlot->master_id");
-
-        return response()->json(['message' => 'Time slot booked successfully']);
-    }
-
-    public function setFreeTimeSlot(FreeTimeSlotRequest $request, TimeSlotService $timeSlotService, MasterStatusService $masterStatusService, FcmTokenService $fcmTokenService): JsonResponse
-    {
-        $data = $request->validated();
-        $dateTime = Carbon::parse($data['date_time']);
-        $timeSlot = TimeSlot::where('date', $dateTime->toDateString())
-            ->where('start_time', $dateTime->toTimeString())
-            ->where('master_id', $data['master_id'])
-            ->firstOrFail();
-        $timeSlotId = $timeSlot->id;
-        $master_id = $timeSlot->master_id;
-        $timeSlotService->setFreeTimeSlot($timeSlotId);
-        $masterStatusService->updateSlotStatusWithTimeRange($master_id, $timeSlot->start_time, $timeSlot->end_time, TimeSlotStatus::Free->value);
-        $fcmTokenService->sendNotificationsToUsers([$master_id], json_encode([
-            'motion' => 'master_status',
-            'body' => [
-                'start_time' => $timeSlot->start_time,
-                'end_time' => $timeSlot->end_time,
-                'status' => TimeSlotStatus::Free->value,
-            ],
-            'category' => 'service',
-        ]));
-
-        return response()->json(['message' => 'Time slot set free successfully']);
     }
 }
