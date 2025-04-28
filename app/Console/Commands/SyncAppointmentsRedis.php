@@ -36,19 +36,12 @@ class SyncAppointmentsRedis extends Command
     public function handle()
     {
         $this->info('Починаємо синхронізацію даних про зайнятість з бази даних у Redis...');
-
-        // Отримуємо всі активні записи про призначення з бази даних
-        $appointments = Appointment::all(); // Або використовуйте більш точний запит, якщо потрібно
-
-        // Очищаємо всі існуючі дані про зайнятість у Redis (за потреби)
-        // Можна розглянути очищення лише ключів, пов'язаних із зайнятістю
-        // Redis::flushdb();
+        $appointments = Appointment::all();
         $masters = Appointment::distinct('master_id')->pluck('master_id');
         foreach ($masters as $masterId) {
             Redis::del($this->appointmentRedisService->getMasterBusyIntervalsKey($masterId));
         }
 
-        // Заповнюємо Redis даними з бази даних
         foreach ($appointments as $appointment) {
             $this->appointmentRedisService->markAsBusy(
                 $appointment->master_id,
