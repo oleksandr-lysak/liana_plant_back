@@ -1,6 +1,7 @@
 <?php
 
 use App\Console\Commands\ClearExpiredAppointmentsRedis;
+use App\Console\Commands\GenerateSlugForMasters;
 use App\Console\Commands\SyncAppointmentsRedis;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\JwtMiddleware;
