@@ -10,6 +10,7 @@ use App\Http\Requests\GetMasterRequest;
 use App\Http\Resources\Api\V1\MasterResource;
 use App\Http\Resources\Api\V1\ReviewResource;
 use App\Http\Resources\Api\V1\UserResource;
+use App\Http\Services\Appointment\AppointmentRedisService;
 use App\Http\Services\FcmTokenService;
 use App\Http\Services\Master\MasterService;
 use App\Http\Services\SmsService;
@@ -29,7 +30,7 @@ class MasterController extends Controller
      * @param  MasterService  $masterService  The service instance to handle business logic related to masters.
      * @return AnonymousResourceCollection A collection of resources to be returned as a response.
      */
-    public function index(GetMasterRequest $request, MasterService $masterService, FcmTokenService $fcmTokenService): AnonymousResourceCollection
+    public function index(GetMasterRequest $request, MasterService $masterService, FcmTokenService $fcmTokenService, AppointmentRedisService $appointmentRedisService): AnonymousResourceCollection
     {
         $validatedData = $request->validated();
         $lat = $validatedData['lat'];
@@ -48,8 +49,12 @@ class MasterController extends Controller
         $masters = $masterService->getMastersOnDistance($page, $lat, $lng, $zoom, $filters);
         // $masters->appends($filters);
         $fcmTokenService->saveMasterIdsToToken($fcmToken, $masters->pluck('id')->toArray());
-
-        return MasterResource::collection($masters);
+        $availabilityMap = $appointmentRedisService->getAvailabilityForMany($masters->pluck('id')->all(), now());
+        return MasterResource::collection($masters)->additional([
+            'meta' => [
+                'availability' => $availabilityMap
+            ]
+        ]);
     }
 
     /**

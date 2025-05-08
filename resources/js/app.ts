@@ -19,10 +19,10 @@ createInertiaApp({
             `./Pages/${name}.vue`,
             import.meta.glob<DefineComponent>('./Pages/**/*.vue'),
         ).then((page) => {
-            
+
             const isAuthenticated = (window as any).Laravel?.isAuthenticated || false;
 
-            
+
             page.default.layout = page.default.layout || (isAuthenticated ? AuthenticatedLayout : GuestLayout);
             return page;
         }),

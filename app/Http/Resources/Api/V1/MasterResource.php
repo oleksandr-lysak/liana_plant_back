@@ -28,6 +28,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 class MasterResource extends JsonResource
 {
+
     /**
      * Transform the resource into an array.
      *
@@ -36,8 +37,8 @@ class MasterResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $appointmentRedisService = app(AppointmentRedisService::class);
-
+        $availabilityMap = $this->resource->availabilityMap ?? []; // додати цей атрибут у моделі якщо треба
+        $available = $availabilityMap[$this->id] ?? false;
         return [
             'id' => (int) $this->id,
             'name' => (string) $this->name,
@@ -52,7 +53,7 @@ class MasterResource extends JsonResource
             'main_photo' => (string) 'storage/'.$this->photo,
             'distance' => (float) round($this->distance, 3),
             'main_service_id' => (int) $this->service_id,
-            'available' => (bool) $appointmentRedisService->isMasterAvailableAt($this->id, now()),
+            'available' => (bool) $available,
             'slug' => (string) $this->slug,
         ];
 

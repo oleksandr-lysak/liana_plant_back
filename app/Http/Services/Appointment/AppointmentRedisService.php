@@ -62,6 +62,42 @@ class AppointmentRedisService
         return true;
     }
 
+    public function getAvailabilityForMany(array $masterIds, Carbon $checkTime): array
+    {
+        $keys = [];
+
+        $results = Redis::pipeline(function ($pipe) use ($masterIds, &$keys) {
+            foreach ($masterIds as $masterId) {
+                $key = $this->getMasterBusyIntervalsKey($masterId);
+                $keys[] = $masterId;
+                $pipe->zrangebyscore($key, '-inf', '+inf', ['WITHSCORES' => true]);
+            }
+        });
+
+        $availability = [];
+
+        foreach ($results as $index => $busyIntervals) {
+            $masterId = $keys[$index];
+            $available = true;
+
+            for ($i = 0; $i < count($busyIntervals); $i += 2) {
+                $start = $busyIntervals[$i];
+                $end = $busyIntervals[$i + 1];
+
+                if ($checkTime->timestamp >= $start && $checkTime->timestamp < $end) {
+                    $available = false;
+                    break;
+                }
+            }
+
+            $availability[$masterId] = $available;
+        }
+
+        return $availability;
+    }
+
+
+
     public function getBusyIntervals(int $masterId, Carbon $startTime = null, Carbon $endTime = null): array
     {
         $min = $startTime ? $startTime->timestamp : '-inf';

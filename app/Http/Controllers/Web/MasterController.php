@@ -41,6 +41,8 @@ class MasterController extends Controller
         return response()->json([
             'masters' => [
                 'data' => MasterResource::collection($masters),
+                'current_page' => $masters->currentPage(),
+                'last_page' => $masters->lastPage(),
                 'prev_page_url' => $masters->previousPageUrl(),
                 'next_page_url' => $masters->nextPageUrl(),
             ],
