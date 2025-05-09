@@ -1,7 +1,11 @@
 <template>
     <Link :href="`/masters/${slug}`" class="block">
         <div
-            class="flex flex-col sm:flex-row justify-between sm:items-center dark:bg-gray-800 bg-white shadow-md mt-2 p-4 hover:shadow-xl rounded-2xl cursor-pointer transition-all duration-300">
+            :class="[
+                'flex flex-col sm:flex-row justify-between sm:items-center dark:bg-gray-800 bg-white shadow-md mt-2 p-4 hover:shadow-xl rounded-2xl cursor-pointer transition-all duration-300',
+                available ? 'border-2 border-green-500' : ''
+            ]"
+        >
 
             <div class="flex flex-col sm:flex-row items-start">
                 <div class="relative">
