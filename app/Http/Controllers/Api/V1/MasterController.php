@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\DTO\AvailabilityInterval;
 use App\Helpers\AddressHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddMasterRequest;
 use App\Http\Requests\AddReviewRequest;
+use App\Http\Requests\Availability\SetAvailableMasterRequest;
 use App\Http\Requests\GetMasterRequest;
 use App\Http\Resources\Api\V1\MasterResource;
 use App\Http\Resources\Api\V1\ReviewResource;
 use App\Http\Resources\Api\V1\UserResource;
 use App\Http\Services\Appointment\AppointmentRedisService;
+use App\Http\Services\Appointment\AppointmentService;
 use App\Http\Services\FcmTokenService;
 use App\Http\Services\Master\MasterService;
 use App\Http\Services\SmsService;
@@ -19,6 +22,7 @@ use App\Models\Master;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class MasterController extends Controller
@@ -118,5 +122,18 @@ class MasterController extends Controller
                 'first' => $masters->first()->place_id,
                 'last' => $masters->last()->place_id,
             ]]);
+    }
+
+    /**
+     * Set the master as available.
+     */
+    public function setAvailable(SetAvailableMasterRequest $request, int $id, AppointmentRedisService $appointmentRedisService): JsonResponse
+    {
+        $data = $request->validated();
+
+        $interval = new AvailabilityInterval($data['start_time'], $data['duration']);
+        $appointmentRedisService->markAsFree($id, $interval->start, $interval->end);
+
+        return response()->json(['message' => 'Master is available']);
     }
 }

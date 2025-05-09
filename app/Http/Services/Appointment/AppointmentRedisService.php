@@ -11,14 +11,22 @@ class AppointmentRedisService
         return "master:{$masterId}:busy_intervals";
     }
 
+    public function getMasterFreeIntervalsKey(int $masterId): string
+    {
+        return "master:{$masterId}:free_intervals";
+    }
+
     public function clearExpiredIntervals(int $masterId): void
     {
-        $nowTimestamp = now()->timestamp;
-        // Delete all old intervals
         Redis::zremrangebyscore(
             $this->getMasterBusyIntervalsKey($masterId),
             '-inf',
-            $nowTimestamp - 1 // exclude current moment of time
+            now()->timestamp - 3600 * 24
+        );
+        Redis::zremrangebyscore(
+            $this->getMasterFreeIntervalsKey($masterId),
+            '-inf',
+            now()->timestamp - 3600 * 24 // наприклад, очищає інтервали старші 24 год
         );
     }
     public function markAsBusy(int $masterId, Carbon $startTime, Carbon $endTime): void
@@ -26,49 +34,46 @@ class AppointmentRedisService
         $this->clearExpiredIntervals($masterId);
         Redis::zadd(
             $this->getMasterBusyIntervalsKey($masterId),
-            $startTime->timestamp, // score - start interval
-            $endTime->timestamp // value - end interval
+            $startTime->timestamp,
+            json_encode([
+                'start' => $startTime->timestamp,
+                'end' => $endTime->timestamp
+            ])
         );
     }
 
     public function markAsFree(int $masterId, Carbon $startTime, Carbon $endTime): void
     {
-        Redis::zremrangebyscore(
-            $this->getMasterBusyIntervalsKey($masterId),
+        $this->clearExpiredIntervals($masterId);
+        Redis::zadd(
+            $this->getMasterFreeIntervalsKey($masterId),
             $startTime->timestamp,
-            $endTime->timestamp
+            json_encode([
+                'start' => $startTime->timestamp,
+                'end' => $endTime->timestamp
+            ])
         );
     }
 
     public function isMasterAvailableAt(int $masterId, Carbon $checkTime): bool
     {
-        $busyIntervals = Redis::zrangebyscore(
-            $this->getMasterBusyIntervalsKey($masterId),
+        $freeIntervals = Redis::zrangebyscore(
+            $this->getMasterFreeIntervalsKey($masterId),
             '-inf',
             '+inf',
             'WITHSCORES'
         );
 
-        for ($i = 0; $i < count($busyIntervals); $i += 2) {
-            $busyStart = $busyIntervals[$i];
-            $busyEnd = $busyIntervals[$i + 1];
-
-            // Check if the check time falls within any busy interval
-            if ($checkTime->timestamp >= $busyStart && $checkTime->timestamp < $busyEnd) {
-                return false;
-            }
-        }
-
-        return true;
+        return $this->isTimestampInFreeIntervals($freeIntervals, $checkTime->timestamp);
     }
+
 
     public function getAvailabilityForMany(array $masterIds, Carbon $checkTime): array
     {
         $keys = [];
-
         $results = Redis::pipeline(function ($pipe) use ($masterIds, &$keys) {
             foreach ($masterIds as $masterId) {
-                $key = $this->getMasterBusyIntervalsKey($masterId);
+                $key = $this->getMasterFreeIntervalsKey($masterId);
                 $keys[] = $masterId;
                 $pipe->zrangebyscore($key, '-inf', '+inf', ['WITHSCORES' => true]);
             }
@@ -76,48 +81,33 @@ class AppointmentRedisService
 
         $availability = [];
 
-        foreach ($results as $index => $busyIntervals) {
+        foreach ($results as $index => $freeIntervals) {
             $masterId = $keys[$index];
-            $available = true;
-
-            for ($i = 0; $i < count($busyIntervals); $i += 2) {
-                $start = $busyIntervals[$i];
-                $end = $busyIntervals[$i + 1];
-
-                if ($checkTime->timestamp >= $start && $checkTime->timestamp < $end) {
-                    $available = false;
-                    break;
-                }
-            }
-
-            $availability[$masterId] = $available;
+            $availability[$masterId] = $this->isTimestampInFreeIntervals($freeIntervals, $checkTime->timestamp);
         }
 
         return $availability;
     }
 
-
-
-    public function getBusyIntervals(int $masterId, Carbon $startTime = null, Carbon $endTime = null): array
+    private function isTimestampInFreeIntervals(array $freeIntervals, int $timestamp): bool
     {
-        $min = $startTime ? $startTime->timestamp : '-inf';
-        $max = $endTime ? $endTime->timestamp : '+inf';
+        for ($i = 0; $i < count($freeIntervals); $i += 2) {
+            $intervalJson = $freeIntervals[$i];
+            $interval = json_decode($intervalJson, true);
 
-        $busyIntervals = Redis::zrangebyscore(
-            $this->getMasterBusyIntervalsKey($masterId),
-            $min,
-            $max,
-            'WITHSCORES'
-        );
+            if (!$interval || !isset($interval['start'], $interval['end'])) {
+                continue;
+            }
 
-        $result = [];
-        for ($i = 0; $i < count($busyIntervals); $i += 2) {
-            $result[] = [
-                'start_time' => Carbon::createFromTimestamp($busyIntervals[$i]),
-                'end_time' => Carbon::createFromTimestamp($busyIntervals[$i + 1]),
-            ];
+            $start = (int) $interval['start'];
+            $end = (int) $interval['end'];
+
+            if ($timestamp >= $start && $timestamp < $end) {
+                return true;
+            }
         }
 
-        return $result;
+        return false;
     }
+
 }

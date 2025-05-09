@@ -41,7 +41,14 @@ Route::prefix('masters')->group(function () {
     });
     Route::get('/{id}', [MasterController::class, 'getMaster']);
     Route::post('/{id}/work-schedule', [MasterController::class, 'updateWorkSchedule']);
+    Route::prefix('/{id}')->group(function () {
+        Route::post('/availability', [MasterController::class, 'setAvailable']);
+//        Route::delete('/availability', [AppointmentController::class, 'setUnavailable']);
+//        Route::get('/availability', [AppointmentController::class, 'getAvailability']);
+    });
 });
+
+
 
 Route::prefix('appointments')->group(function () {
     Route::get('/is-busy', [AppointmentController::class, 'isBusy']);

@@ -10,9 +10,10 @@ class AppointmentObserver
 {
     protected AppointmentRedisService $appointmentRedisService;
 
-    public function __construct(AppointmentRedisService $appointmentRedisService)
+    public function __construct()
     {
-        $this->$appointmentRedisService = $appointmentRedisService;
+        $appointmentRedisService = app(AppointmentRedisService::class);
+        $this->appointmentRedisService = $appointmentRedisService;
     }
     /**
      * Handle the Appointment "created" event.

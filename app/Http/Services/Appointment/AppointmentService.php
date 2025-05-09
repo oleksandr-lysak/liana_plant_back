@@ -45,7 +45,9 @@ class AppointmentService
             $clientId = Client::create(['phone' => $clientPhone])->id;
         }
         // Check if the slot is available
-        if ($this->isSlotAvailable($masterId, $start, $end)) {
+        $redisService = app(AppointmentRedisService::class);
+        $available = $redisService->isMasterAvailableAt($masterId, $start);
+        if ($available) {
             return Appointment::create([
                 'master_id' => $masterId,
                 'service_id' => $service_id,
