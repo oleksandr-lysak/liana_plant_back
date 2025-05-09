@@ -4,6 +4,9 @@ import SecondaryButton from '@/Components/SecondaryButton.vue';
 import MasterCard from '@/Components/MasterCard.vue';
 import { onMounted, ref } from 'vue';
 import axios from 'axios';
+import TextInput from '@/Components/TextInput.vue';
+import InputLabel from '@/Components/InputLabel.vue';
+import TextH2 from '@/Components/TextH2.vue';
 
 interface Master {
     id: number;
@@ -15,6 +18,7 @@ interface Master {
     phone: string;
     age: number;
     slug: string;
+    available: boolean;
 }
 
 interface MastersResponse {
@@ -126,21 +130,12 @@ const getMastersUrl = () => {
 
     <div class="py-0 mx-auto max-w-7xl sm:px-0 lg:px-8">
         <!-- Filter Panel -->
-        <div class="m-8 p-6 rounded-lg shadow mb-8 max-w-7xl sm:px-6 lg:px-8 bg-white dark:border-gray-500">
-            <h2 class="text-lg font-semibold mb-4">Filters</h2>
+        <div class="m-8 p-6 rounded-2xl shadow mb-8 max-w-7xl sm:px-6 lg:px-8 bg-white dark:bg-gray-800">
+            <TextH2>Filters</TextH2>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
-                    <input type="text" v-model="filters.specialization" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="Example: data.services.pedicure" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Min rank</label>
-                    <input type="number" min="0" max="5" step="0.1" v-model="filters.minRating" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="Example: 4.5" />
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Experience from (years)</label>
-                    <input type="number" min="18" v-model="filters.minAge" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="Example:5"/>
-                </div>
+                <TextInput model-value="filters.specialization" label="Specialization" placeholder="Example: data.services.pedicure" />
+                <TextInput model-value="filters.minRating" label="Min rating" placeholder="Example: 4.5" />
+                <TextInput model-value="filters.minAge" label="Min age" placeholder="Example: 25" />
             </div>
             <div class="mt-4">
                 <SecondaryButton @click="applyFilters">Apply filters</SecondaryButton>
@@ -171,6 +166,7 @@ const getMastersUrl = () => {
                     :phone="master.phone"
                     :slug="master.slug"
                     :age="master.age"
+                    :available="master.available"
                 />
             </div>
 
@@ -197,5 +193,5 @@ const getMastersUrl = () => {
 </template>
 
 <style scoped>
-/* Можеш додати анімації або стилі за потреби */
+
 </style>
