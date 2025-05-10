@@ -15,6 +15,7 @@ use App\Http\Resources\Api\V1\UserResource;
 use App\Http\Services\Appointment\AppointmentRedisService;
 use App\Http\Services\Appointment\AppointmentService;
 use App\Http\Services\FcmTokenService;
+use App\Http\Services\Master\MasterFetcher;
 use App\Http\Services\Master\MasterService;
 use App\Http\Services\SmsService;
 use App\Http\Services\UserService;
@@ -22,6 +23,7 @@ use App\Models\Master;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
@@ -30,35 +32,13 @@ class MasterController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param  GetMasterRequest  $request  The request instance containing validation and authorization logic.
-     * @param  MasterService  $masterService  The service instance to handle business logic related to masters.
-     * @return AnonymousResourceCollection A collection of resources to be returned as a response.
+     * @param GetMasterRequest $request The request instance containing validation and authorization logic.
+     * @param MasterFetcher $masterFetcher
+     * @return JsonResponse
      */
-    public function index(GetMasterRequest $request, MasterService $masterService, FcmTokenService $fcmTokenService, AppointmentRedisService $appointmentRedisService): AnonymousResourceCollection
+    public function index(GetMasterRequest $request, MasterFetcher $masterFetcher): JsonResponse
     {
-        $validatedData = $request->validated();
-        $lat = $validatedData['lat'];
-        $lng = $validatedData['lng'];
-        $zoom = $validatedData['zoom'];
-        $page = $validatedData['page'] ?? 1;
-        $fcmToken = $validatedData['fcm_token'];
-
-        $filters = [
-            'name' => $validatedData['name'] ?? null,
-            'distance' => $validatedData['distance'] ?? null,
-            'service_id' => $validatedData['service_id'] ?? null,
-            'rating' => $validatedData['rating'] ?? null,
-            'available' => $validatedData['available'] ?? null,
-        ];
-        $masters = $masterService->getMastersOnDistance($page, $lat, $lng, $zoom, $filters);
-        // $masters->appends($filters);
-        $fcmTokenService->saveMasterIdsToToken($fcmToken, $masters->pluck('id')->toArray());
-        $availabilityMap = $appointmentRedisService->getAvailabilityForMany($masters->pluck('id')->all(), now());
-        return MasterResource::collection($masters)->additional([
-            'meta' => [
-                'availability' => $availabilityMap
-            ]
-        ]);
+        return $masterFetcher->fetch($request->validated());
     }
 
     /**

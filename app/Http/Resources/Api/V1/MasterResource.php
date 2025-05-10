@@ -29,6 +29,13 @@ use Illuminate\Http\Resources\Json\JsonResource;
 class MasterResource extends JsonResource
 {
 
+    protected array $availabilityMap;
+
+    public function __construct($resource, array $availabilityMap = [])
+    {
+        parent::__construct($resource);
+        $this->availabilityMap = $availabilityMap;
+    }
     /**
      * Transform the resource into an array.
      *
@@ -37,8 +44,6 @@ class MasterResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $availabilityMap = $this->resource->availabilityMap ?? []; // додати цей атрибут у моделі якщо треба
-        $available = $availabilityMap[$this->id] ?? false;
         return [
             'id' => (int) $this->id,
             'name' => (string) $this->name,
@@ -53,7 +58,7 @@ class MasterResource extends JsonResource
             'main_photo' => (string) 'storage/'.$this->photo,
             'distance' => (float) round($this->distance, 3),
             'main_service_id' => (int) $this->service_id,
-            'available' => (bool) $available,
+            'available' => (bool) $this->availabilityMap[$this->id] ?? false,
             'slug' => (string) $this->slug,
         ];
 

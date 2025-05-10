@@ -67,47 +67,69 @@ class AppointmentRedisService
         return $this->isTimestampInFreeIntervals($freeIntervals, $checkTime->timestamp);
     }
 
-
     public function getAvailabilityForMany(array $masterIds, Carbon $checkTime): array
     {
-        $keys = [];
-        $results = Redis::pipeline(function ($pipe) use ($masterIds, &$keys) {
+        $availability = [];
+        $timestamp = $checkTime->timestamp;
+
+        $allFreeIntervals = [];
+
+        $results = Redis::pipeline(function ($pipe) use ($masterIds) {
             foreach ($masterIds as $masterId) {
-                $key = $this->getMasterFreeIntervalsKey($masterId);
-                $keys[] = $masterId;
-                $pipe->zrangebyscore($key, '-inf', '+inf', ['WITHSCORES' => true]);
+                $pipe->zrangebyscore(
+                    $this->getMasterFreeIntervalsKey($masterId),
+                    '-inf',
+                    '+inf',
+                    ['withscores' => true]
+                );
             }
         });
 
-        $availability = [];
+        // Прив’язуємо результати до masterId
+        foreach ($masterIds as $index => $masterId) {
+            $allFreeIntervals[$masterId] = $results[$index];
+        }
 
-        foreach ($results as $index => $freeIntervals) {
-            $masterId = $keys[$index];
-            $availability[$masterId] = $this->isTimestampInFreeIntervals($freeIntervals, $checkTime->timestamp);
+        foreach ($masterIds as $index => $masterId) {
+            $freeIntervals = $allFreeIntervals[$masterId] ?? [];
+            // ❗ Тут просто викликаємо ту ж логіку
+            $availability[$masterId] = $this->isTimestampInFreeIntervals($freeIntervals, $timestamp);
         }
 
         return $availability;
     }
 
-    private function isTimestampInFreeIntervals(array $freeIntervals, int $timestamp): bool
+
+
+
+
+    private function isTimestampInFreeIntervals(array $intervals, int $timestamp): bool
     {
-        for ($i = 0; $i < count($freeIntervals); $i += 2) {
-            $intervalJson = $freeIntervals[$i];
-            $interval = json_decode($intervalJson, true);
+        foreach ($intervals as $key => $value) {
+            // Якщо індексований — $key буде числовим (0, 1, 2...), і парний (json, score, json, score...)
+            // Якщо асоціативний — $key = json, $value = score
+
+            if (is_numeric($key)) {
+                if ($key % 2 !== 0) {
+                    continue; // Пропускаємо score
+                }
+
+                $interval = json_decode($value, true);
+            } else {
+                $interval = json_decode($key, true);
+            }
 
             if (!$interval || !isset($interval['start'], $interval['end'])) {
                 continue;
             }
 
-            $start = (int) $interval['start'];
-            $end = (int) $interval['end'];
-
-            if ($timestamp >= $start && $timestamp < $end) {
+            if ($timestamp >= $interval['start'] && $timestamp < $interval['end']) {
                 return true;
             }
         }
 
         return false;
     }
+
 
 }
