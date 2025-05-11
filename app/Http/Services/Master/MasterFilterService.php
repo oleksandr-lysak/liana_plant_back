@@ -19,12 +19,8 @@ class MasterFilterService
         }
 
         if (! empty($filters['rating'])) {
-            $whereClauses[] = 'AVG(reviews.rating) >= :rating';
+            $whereClauses[] = 'COALESCE(reviews_summary.rating, 0) >= :rating';
             $queryParams['rating'] = $filters['rating'];
-        }
-
-        if (! empty($filters['available'])) {
-            $whereClauses[] = 'busy_appointments.master_id IS NULL';
         }
 
         if (! empty($whereClauses)) {

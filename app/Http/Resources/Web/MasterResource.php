@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http\Resources;
+namespace App\Http\Resources\Web;
 
-use App\Http\Services\Master\MasterStatusService;
+use App\Http\Resources\Api\V1\ServiceResource;
+use App\Http\Services\Appointment\AppointmentRedisService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -36,7 +37,7 @@ class MasterResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $statusService = app(MasterStatusService::class);
+        $appointmentRedisService = app(AppointmentRedisService::class);
 
         return [
             'id' => (int) $this->id,
@@ -52,8 +53,9 @@ class MasterResource extends JsonResource
             'main_photo' => (string) 'storage/'.$this->photo,
             'distance' => (float) round($this->distance, 3),
             'main_service_id' => (int) $this->service_id,
-            'available' => (bool) $this->available,
-            'slug' => (string) $this->slug
+            'slug' => (string) $this->slug,
+            'services' => ServiceResource::collection($this->services),
+            'available' => $appointmentRedisService->isMasterAvailableAt($this->id, now()),
         ];
 
     }

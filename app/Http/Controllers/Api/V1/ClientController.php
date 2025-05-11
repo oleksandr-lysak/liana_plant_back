@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterClientRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\Api\V1\UserResource;
 use App\Http\Services\ClientService;
 use App\Http\Services\UserService;
 use App\Models\Client;

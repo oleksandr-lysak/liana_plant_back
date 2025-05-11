@@ -2,8 +2,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Availability\SetAvailableMasterRequest;
 use App\Http\Requests\BookTimeRequest;
-use App\Http\Services\AppointmentService;
+use App\Http\Services\Appointment\AppointmentService;
 use Illuminate\Http\Request;
 
 class AppointmentController extends Controller

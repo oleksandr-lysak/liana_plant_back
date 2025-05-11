@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\VerifyCodeRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\Api\V1\UserResource;
 use App\Http\Services\SmsService;
 use App\Http\Services\UserService;
 use Illuminate\Http\JsonResponse;

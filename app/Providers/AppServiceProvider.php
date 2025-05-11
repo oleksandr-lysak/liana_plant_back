@@ -2,8 +2,11 @@
 
 namespace App\Providers;
 
+use App\Models\Appointment;
 use App\Models\Master;
+use App\Observers\AppointmentObserver;
 use App\Observers\MasterObserver;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Inertia\Inertia;
@@ -23,10 +26,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if (env('APP_ENV') === 'production') {
+            URL::forceScheme('https');
+        }
         Master::observe(MasterObserver::class);
+        Appointment::observe(AppointmentObserver::class);
         Inertia::share('translations', function () {
             $locale = app()->getLocale();
-            dd($locale);
+
             $path = resource_path("lang/{$locale}.json");
 
             if (!File::exists($path)) {

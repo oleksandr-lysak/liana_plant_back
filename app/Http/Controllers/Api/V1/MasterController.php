@@ -2,33 +2,29 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Enums\TimeSlotStatus;
+use App\DTO\AvailabilityInterval;
 use App\Helpers\AddressHelper;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddMasterRequest;
 use App\Http\Requests\AddReviewRequest;
-use App\Http\Requests\BookTimeSlotRequest;
-use App\Http\Requests\FreeTimeSlotRequest;
+use App\Http\Requests\Availability\SetAvailableMasterRequest;
 use App\Http\Requests\GetMasterRequest;
-use App\Http\Resources\MasterResource;
-use App\Http\Resources\ReviewResource;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\Api\V1\MasterResource;
+use App\Http\Resources\Api\V1\ReviewResource;
+use App\Http\Resources\Api\V1\UserResource;
+use App\Http\Services\Appointment\AppointmentRedisService;
+use App\Http\Services\Appointment\AppointmentService;
 use App\Http\Services\FcmTokenService;
+use App\Http\Services\Master\MasterFetcher;
 use App\Http\Services\Master\MasterService;
-use App\Http\Services\Master\MasterStatusService;
 use App\Http\Services\SmsService;
-use App\Http\Services\TelegramService;
-use App\Http\Services\TimeSlotService;
 use App\Http\Services\UserService;
 use App\Models\Master;
-use App\Models\TimeSlot;
-use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use JsonException;
-use NotificationChannels\Telegram\Exceptions\CouldNotSendNotification;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Carbon;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 class MasterController extends Controller
@@ -36,31 +32,13 @@ class MasterController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @param  GetMasterRequest  $request  The request instance containing validation and authorization logic.
-     * @param  MasterService  $masterService  The service instance to handle business logic related to masters.
-     * @return AnonymousResourceCollection A collection of resources to be returned as a response.
+     * @param GetMasterRequest $request The request instance containing validation and authorization logic.
+     * @param MasterFetcher $masterFetcher
+     * @return JsonResponse
      */
-    public function index(GetMasterRequest $request, MasterService $masterService, FcmTokenService $fcmTokenService): AnonymousResourceCollection
+    public function index(GetMasterRequest $request, MasterFetcher $masterFetcher): JsonResponse
     {
-        $validatedData = $request->validated();
-        $lat = $validatedData['lat'];
-        $lng = $validatedData['lng'];
-        $zoom = $validatedData['zoom'];
-        $page = $validatedData['page'] ?? 1;
-        $fcmToken = $validatedData['fcm_token'];
-
-        $filters = [
-            'name' => $validatedData['name'] ?? null,
-            'distance' => $validatedData['distance'] ?? null,
-            'service_id' => $validatedData['service_id'] ?? null,
-            'rating' => $validatedData['rating'] ?? null,
-            'available' => $validatedData['available'] ?? null,
-        ];
-        $masters = $masterService->getMastersOnDistance($page, $lat, $lng, $zoom, $filters);
-        // $masters->appends($filters);
-        $fcmTokenService->saveMasterIdsToToken($fcmToken, $masters->pluck('id')->toArray());
-
-        return MasterResource::collection($masters);
+        return $masterFetcher->fetch($request->validated());
     }
 
     /**
@@ -127,61 +105,15 @@ class MasterController extends Controller
     }
 
     /**
-     * @throws CouldNotSendNotification
-     * @throws JsonException
+     * Set the master as available.
      */
-    public function bookTimeInRedis(Request $request, MasterStatusService $statusService)
-    {
-        $data = $request->all();
-        $master = Master::find($data['master_id']);
-        $statusService->updateSlotStatusWithTimeRange($data['master_id'], $data['start_time'], $data['end_time'], $data['status']);
-        TelegramService::sendTelegramMessage('Timeslot booked for master '.$master->name.' (id:'.$data['master_id'].')');
-
-        return response()->json(['message' => 'Time slot booked successfully']);
-    }
-
-    public function bookTimeSlot(BookTimeSlotRequest $request, TimeSlotService $timeSlotService, MasterStatusService $statusService, FcmTokenService $fcmTokenService): JsonResponse
+    public function setAvailable(SetAvailableMasterRequest $request, int $id, AppointmentRedisService $appointmentRedisService): JsonResponse
     {
         $data = $request->validated();
-        $timeSlot = $timeSlotService->bookTimeSlot($data);
-        $statusService->updateSlotStatusWithTimeRange(
-            $timeSlot->master_id, $timeSlot->start_time, $timeSlot->end_time, TimeSlotStatus::Booked->value);
-        $fcmTokenService->sendNotificationsToUsers([$timeSlot->master_id], json_encode([
-            'motion' => 'master_status',
-            'body' => [
-                'start_time' => $timeSlot->start_time,
-                'end_time' => $timeSlot->end_time,
-                'status' => TimeSlotStatus::Booked->value,
-            ],
-            'category' => 'service',
-        ]));
-        TelegramService::sendTelegramMessage("Timeslot booked for master $timeSlot->master_id");
 
-        return response()->json(['message' => 'Time slot booked successfully']);
-    }
+        $interval = new AvailabilityInterval($data['start_time'], $data['duration']);
+        $appointmentRedisService->markAsFree($id, $interval->start, $interval->end);
 
-    public function setFreeTimeSlot(FreeTimeSlotRequest $request, TimeSlotService $timeSlotService, MasterStatusService $masterStatusService, FcmTokenService $fcmTokenService): JsonResponse
-    {
-        $data = $request->validated();
-        $dateTime = Carbon::parse($data['date_time']);
-        $timeSlot = TimeSlot::where('date', $dateTime->toDateString())
-            ->where('start_time', $dateTime->toTimeString())
-            ->where('master_id', $data['master_id'])
-            ->firstOrFail();
-        $timeSlotId = $timeSlot->id;
-        $master_id = $timeSlot->master_id;
-        $timeSlotService->setFreeTimeSlot($timeSlotId);
-        $masterStatusService->updateSlotStatusWithTimeRange($master_id, $timeSlot->start_time, $timeSlot->end_time, TimeSlotStatus::Free->value);
-        $fcmTokenService->sendNotificationsToUsers([$master_id], json_encode([
-            'motion' => 'master_status',
-            'body' => [
-                'start_time' => $timeSlot->start_time,
-                'end_time' => $timeSlot->end_time,
-                'status' => TimeSlotStatus::Free->value,
-            ],
-            'category' => 'service',
-        ]));
-
-        return response()->json(['message' => 'Time slot set free successfully']);
+        return response()->json(['message' => 'Master is available']);
     }
 }
