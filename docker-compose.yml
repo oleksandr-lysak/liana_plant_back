@@ -34,7 +34,9 @@ services:
                 PHP_VERSION: 8.3
                 APP_ENV: ${APP_ENV}
         volumes:
-            - ./:/var/www/html
+            - ${VOLUME_CODE}
+            - ./storage:/var/www/html/storage
+            - ./bootstrap/cache:/var/www/html/bootstrap/cache
         environment:
             DB_HOST: mysql
             DB_DATABASE: ${DB_DATABASE}
