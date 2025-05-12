@@ -10,6 +10,22 @@ git config --global --add safe.directory /var/www/html
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache || true
 chmod 664 /var/www/html/package-lock.json || true
 
+echo "📁 Список вмісту /var/www/html:"
+ls -la /var/www/html
+
+echo "📁 Список вмісту storage:"
+ls -la /var/www/html/storage || echo "❌ storage не існує"
+
+echo "📁 Список вмісту bootstrap/cache:"
+ls -la /var/www/html/bootstrap/cache || echo "❌ bootstrap/cache не існує"
+
+echo "📄 Наявність файлу artisan:"
+if [ -f /var/www/html/artisan ]; then
+    echo "✅ artisan знайдено"
+else
+    echo "❌ artisan відсутній"
+fi
+
 # Xdebug
 if php -m | grep -q xdebug; then
     echo "🧩 Xdebug already active"
