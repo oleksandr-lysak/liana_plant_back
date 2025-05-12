@@ -56,6 +56,9 @@ RUN mkdir -p /var/log/supervisor /var/run/supervisor /root/.cache/crontab \
     && chown -R www-data:www-data /var/log/supervisor /var/run/supervisor /root/.cache \
     && chmod -R 755 /var/log/supervisor /var/run/supervisor /root/.cache
 
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --optimize-autoloader
+
 # Права на файли проекту
 RUN chown -R www-data:www-data /var/www/html
 
