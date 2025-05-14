@@ -40,6 +40,10 @@ else
     echo "🚫 Xdebug will not activate (environment: $APP_ENV)"
 fi
 
+# Laravel migrations
+echo "🧱 Running migrations..."
+php artisan migrate --force
+
 # Laravel cache
 php artisan config:clear
 php artisan cache:clear
@@ -51,9 +55,7 @@ echo "📦 Building frontend..."
 npm install
 npm run build
 
-# Laravel migrations
-echo "🧱 Running migrations..."
-php artisan migrate --force
+
 
 # Add Laravel Scheduler to crontab
 echo "* * * * * php /var/www/html/artisan schedule:run >> /dev/null 2>&1" | crontab -
