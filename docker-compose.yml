@@ -35,8 +35,6 @@ services:
                 APP_ENV: ${APP_ENV}
         volumes:
             - ${VOLUME_CODE}
-            - ${VOLUME_STORAGE}
-            - ${VOLUME_CACHE}
         environment:
             DB_HOST: mysql
             DB_DATABASE: ${DB_DATABASE}
