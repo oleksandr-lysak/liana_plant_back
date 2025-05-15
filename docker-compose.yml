@@ -1,9 +1,6 @@
 services:
     nginx:
         image: nginx:stable-alpine
-        build:
-            context: .
-            dockerfile: Dockerfile-nginx
         ports:
             - "8002:80"
             - "4432:443"
