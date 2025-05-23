@@ -71,3 +71,4 @@ yarn-error.log
 /html/storage/logs/laravel.log
 .docker/mysql_data/binlog.000006
 .docker/mysql_data/binlog.000005
+core

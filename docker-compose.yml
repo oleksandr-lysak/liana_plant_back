@@ -1,68 +1,83 @@
+version: '3.8'
+
 services:
-    nginx:
-        image: nginx:stable-alpine
-        ports:
-            - "8002:80"
-            - "4432:443"
-        volumes:
-#            - ./.docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-            - ./.docker/nginx:/etc/nginx/conf.d
-            - ./:/var/www/html
-        depends_on:
-            - liana_app
-        networks:
-            - liana_network
-
-    mysql:
-        image: mysql:8.0
-        environment:
-            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-            MYSQL_DATABASE: ${DB_DATABASE}
-            MYSQL_USER: ${DB_USERNAME}
-            MYSQL_PASSWORD: ${DB_PASSWORD}
-        ports:
-            - "3302:3306"
-        volumes:
-            - ./.docker/mysql_data:/var/lib/mysql
-        networks:
-            - liana_network
-
-    liana_app:
+    app:
         build:
             context: .
-            dockerfile: .docker/app/Dockerfile
-            args:
-                PHP_VERSION: 8.3
-                APP_ENV: ${APP_ENV}
+            dockerfile: Dockerfile
+        container_name: liana_app
+        restart: unless-stopped
+        working_dir: /var/www
         volumes:
-            - ${VOLUME_CODE}
+            - ./:/var/www
+            - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+        networks:
+            - liana_network
+
+    nginx:
+        image: nginx:alpine
+        container_name: liana_nginx
+        restart: unless-stopped
+        ports:
+            - "88:80"
+        volumes:
+            - ./:/var/www
+            - ./docker/nginx/conf.d:/etc/nginx/conf.d
+        networks:
+            - liana_network
+
+    db:
+        image: mysql:8.0
+        container_name: liana_db
+        restart: unless-stopped
         environment:
-            DB_HOST: mysql
-            DB_DATABASE: ${DB_DATABASE}
-            DB_USERNAME: ${DB_USERNAME}
-            DB_PASSWORD: ${DB_PASSWORD}
-            REDIS_HOST: redis
-            QUEUE_CONNECTION: redis
-            CACHE_DRIVER: redis
-            SESSION_DRIVER: redis
-            XDEBUG_MODE: debug
-            XDEBUG_CONFIG: "client_host=host.docker.internal"
-            APP_ENV: ${APP_ENV}
-            TELEGRAM_TOKEN: ${TELEGRAM_TOKEN}
-            TELEGRAM_CHAT_ID: ${TELEGRAM_CHAT_ID}
-        extra_hosts:
-            - "host.docker.internal:host-gateway"
+            MYSQL_DATABASE: ${DB_DATABASE:-liana}
+            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+            MYSQL_PASSWORD: ${DB_PASSWORD:-root}
+            MYSQL_USER: ${DB_USERNAME:-liana}
+        volumes:
+            - dbdata:/var/lib/mysql
+        ports:
+            - "3308:3306"
+        networks:
+            - liana_network
+
+    redis:
+        image: redis:alpine
+        container_name: liana_redis
+        restart: unless-stopped
+        ports:
+            - "6378:6379"
+        volumes:
+            - redis_data:/data
+        networks:
+            - liana_network
+
+    queue:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: liana_queue
+        restart: unless-stopped
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+        command: php artisan queue:work redis --sleep=3 --tries=3
         depends_on:
-            - mysql
             - redis
         networks:
             - liana_network
 
-
-    redis:
-        image: redis:alpine
-        ports:
-            - "6372:6379"
+    scheduler:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: liana_scheduler
+        restart: unless-stopped
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+        command: php artisan schedule:work
         networks:
             - liana_network
 
@@ -71,4 +86,6 @@ networks:
         driver: bridge
 
 volumes:
-    mysql_data:
+    dbdata:
+    redis_data:
+        driver: local
