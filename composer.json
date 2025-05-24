@@ -19,6 +19,7 @@
         "laravel/telescope": "^5.2",
         "laravel/tinker": "^2.9",
         "predis/predis": "*",
+        "sentry/sentry-laravel": "^4.13",
         "tightenco/ziggy": "^2.0",
         "tymon/jwt-auth": "^2.1"
     },

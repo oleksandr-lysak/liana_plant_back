@@ -10,7 +10,11 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     nginx \
-    supervisor
+    supervisor \
+    autoconf \
+    build-essential \
+    && pecl install redis \
+    && docker-php-ext-enable redis
 
 # Встановлюємо PHP розширення
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd
