@@ -27,11 +27,11 @@ RUN chown -R application:application /app/storage /app/bootstrap/cache
 # Копіюємо supervisor конфіг для воркерів
 COPY docker/supervisord.prod.conf /opt/docker/etc/supervisor.d/laravel.conf
 
-RUN php artisan migrate --force && \
-    php artisan cache:clear && \
-    php artisan config:clear && \
-    php artisan route:clear && \
-    php artisan view:clear
+# RUN php artisan migrate && \
+#     php artisan cache:clear && \
+#     php artisan config:clear && \
+#     php artisan route:clear && \
+#     php artisan view:clear
 
 # Відкриваємо порт 80 (nginx)
 EXPOSE 80 
