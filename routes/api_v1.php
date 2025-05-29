@@ -29,9 +29,7 @@ Route::get('/test', function () {
     return true;
 });
 Route::get('/get-saved-tokens', function () {
-    $tokenService = new FcmTokenService;
-
-    return $tokenService->getTokensForMasters([1001]);
+    return true;
 });
 
 Route::prefix('masters')->group(function () {
@@ -39,6 +37,7 @@ Route::prefix('masters')->group(function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('/review', [MasterController::class, 'addReview']);
     });
+    Route::post('/import-external/{service_id}', [MasterController::class, 'storeFromExternal']);
     Route::get('/{id}', [MasterController::class, 'getMaster']);
     Route::post('/{id}/work-schedule', [MasterController::class, 'updateWorkSchedule']);
     Route::prefix('/{id}')->group(function () {

@@ -1,34 +1,16 @@
 FROM webdevops/php-nginx:8.3-alpine
-
-# Копіюємо кастомний php.ini
 COPY docker/php/local.ini /opt/docker/etc/php/php.ini
-
-# Копіюємо кастомний vhost.conf
 COPY docker/nginx/vhost.conf /opt/docker/etc/nginx/vhost.conf
-
-# Встановлюємо Node.js (якщо потрібно для фронту)
 RUN apk add --no-cache nodejs npm
-
 WORKDIR /app
-
-# Копіюємо composer файли та встановлюємо залежності
 COPY composer.json composer.lock /app/
 RUN composer install --no-interaction --no-scripts --no-suggest --optimize-autoloader
-
-# Копіюємо проект
 COPY . /app
-
-# Встановлюємо npm-залежності та збираємо фронт
 RUN npm install && npm run build
-
-# Встановлюємо права
 RUN chown -R application:application /app/storage /app/bootstrap/cache
-
-# Створюємо директорію для логів supervisor
 RUN mkdir -p /var/log/supervisor
-
-# Копіюємо supervisor конфіг для воркерів
 COPY docker/supervisord.prod.conf /opt/docker/etc/supervisor.d/laravel.conf
-
-# Відкриваємо порт 80 (nginx)
+COPY docker/entrypoint.prod.sh /entrypoint.prod.sh
+RUN chmod +x /entrypoint.prod.sh
+ENTRYPOINT ["/entrypoint.prod.sh"]
 EXPOSE 80 

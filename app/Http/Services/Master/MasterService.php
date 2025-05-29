@@ -2,6 +2,9 @@
 
 namespace App\Http\Services\Master;
 
+use App\Helpers\PhoneHelper;
+use App\Helpers\PhotoHelper;
+use App\Http\Services\ClientService;
 use App\Http\Services\PaginatorService;
 use App\Models\Master;
 use App\Models\Service;
@@ -94,5 +97,45 @@ class MasterService
         $specialtyName = $specialty->name ?? '';
     
         return Slugify::create()->slugify($master->name.' '.$specialtyName);
+    }
+
+    public function importFromExternal(int $serviceId, array $data, ClientService $clientService): Master
+    {
+        $photoBase64 = app(PhotoHelper::class)->downloadAndConvertToBase64($data['main_photo'] ?? '');
+        $data['phone'] = app(PhoneHelper::class)->normalize($data['phone'] ?? '');
+        $masterData = [
+            'user_id' => 1,
+            'name' => $data['name'] ?? '',
+            'phone' => $data['phone'] ?? '',
+            'address' => $data['address'] ?? '',
+            'description' => $data['description'] ?? '',
+            'latitude' => $data['coordinates']['lat'] ?? null,
+            'longitude' => $data['coordinates']['lng'] ?? null,
+            'photo' => $photoBase64,
+            'service_id' => $serviceId,
+            'approved' => false,
+        ];
+        $master = $this->createOrUpdate($masterData);
+        if (!empty($data['reviews'])) {
+            foreach ($data['reviews'] as $review) {
+                $client = $clientService->createOrUpdate([
+                    'name' => $review['author'] ?? 'Anonymous',
+                    'phone' => $data['phone'] ?? null,
+                    'user_id' => 1,
+                ]);
+                
+                $parsedRating = 0;
+                if (!empty($review['rating']) && preg_match('/(\d+)/', $review['rating'], $matches)) {
+                    $parsedRating = (int)$matches[1];
+                }
+                $master->reviews()->create([
+                    'review' => $review['text'] ?? '',
+                    'rating' => $parsedRating,
+                    'user_id' => $client->user_id ?? null,
+                    'master_id' => $master->id,
+                ]);
+            }
+        }
+        return $master;
     }
 }

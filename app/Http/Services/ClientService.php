@@ -3,7 +3,6 @@
 namespace App\Http\Services;
 
 use App\Models\Client;
-use Illuminate\Database\Eloquent\Model;
 
 class ClientService
 {
@@ -14,7 +13,7 @@ class ClientService
         $this->model = $client;
     }
 
-    public function createOrUpdate(array $data): Client|Model
+    public function createOrUpdate(array $data): Client
     {
         $client = Client::updateOrCreate(
             ['phone' => $data['phone']],
