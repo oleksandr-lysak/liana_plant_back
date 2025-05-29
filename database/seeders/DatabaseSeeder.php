@@ -46,34 +46,34 @@ class DatabaseSeeder extends Seeder
             Service::create(['name' => $serviceName]);
         }
         // count of masters
-        $total = 1000;
-        $this->command->info("Creating {$total} masters...");
-        $this->command->getOutput()->progressStart($total);
-        for ($i = 0; $i < $total; $i++) {
-            Master::factory()->create();
-            $this->command->getOutput()->progressAdvance();
-        }
-        $this->command->getOutput()->progressFinish();
+        // $total = 1000;
+        // $this->command->info("Creating {$total} masters...");
+        // $this->command->getOutput()->progressStart($total);
+        // for ($i = 0; $i < $total; $i++) {
+        //     Master::factory()->create();
+        //     $this->command->getOutput()->progressAdvance();
+        // }
+        // $this->command->getOutput()->progressFinish();
 
-        // count of reviews
-        $total = 10000;
-        $this->command->info("Creating {$total} reviews...");
-        $this->command->getOutput()->progressStart($total);
-        for ($i = 0; $i < $total; $i++) {
-            Review::factory()->create();
-            $this->command->getOutput()->progressAdvance();
-        }
-        $this->command->getOutput()->progressFinish();
+        // // count of reviews
+        // $total = 10000;
+        // $this->command->info("Creating {$total} reviews...");
+        // $this->command->getOutput()->progressStart($total);
+        // for ($i = 0; $i < $total; $i++) {
+        //     Review::factory()->create();
+        //     $this->command->getOutput()->progressAdvance();
+        // }
+        // $this->command->getOutput()->progressFinish();
 
-        // count of clients
-        $total = 10000;
-        $this->command->info("Creating {$total} clients...");
-        $this->command->getOutput()->progressStart($total);
-        for ($i = 0; $i < $total; $i++) {
-            Client::factory()->create();
-            $this->command->getOutput()->progressAdvance();
-        }
-        $this->command->getOutput()->progressFinish();
+        // // count of clients
+        // $total = 10000;
+        // $this->command->info("Creating {$total} clients...");
+        // $this->command->getOutput()->progressStart($total);
+        // for ($i = 0; $i < $total; $i++) {
+        //     Client::factory()->create();
+        //     $this->command->getOutput()->progressAdvance();
+        // }
+        // $this->command->getOutput()->progressFinish();
 
     }
 }
