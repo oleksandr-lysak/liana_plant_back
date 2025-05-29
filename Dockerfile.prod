@@ -24,6 +24,7 @@ RUN npm install && npm run build
 # Встановлюємо права
 RUN chown -R application:application /app/storage /app/bootstrap/cache
 
+# Створюємо директорію для логів supervisor
 RUN mkdir -p /var/log/supervisor
 
 # Копіюємо supervisor конфіг для воркерів
