@@ -25,10 +25,7 @@ RUN npm install && npm run build
 RUN chown -R application:application /app/storage /app/bootstrap/cache
 
 # Копіюємо supervisor конфіг для воркерів
-COPY docker/supervisord.prod.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/supervisord.prod.conf /opt/docker/etc/supervisor.d/laravel.conf
 
 # Відкриваємо порт 80 (nginx)
-EXPOSE 80
-
-# Запускаємо supervisor (воркери) + nginx+php-fpm стартують автоматично
-CMD ["/opt/docker/bin/entrypoint supervisord"] 
+EXPOSE 80 
