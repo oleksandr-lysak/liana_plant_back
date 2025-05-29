@@ -27,6 +27,7 @@ class MasterSearchService
         masters.age,
         masters.photo,
         masters.service_id,
+        masters.approved,
         (
             6371 * acos(
                 cos(radians(:distance_lat)) * cos(radians(latitude)) * cos(radians(longitude) - radians(:distance_lng))

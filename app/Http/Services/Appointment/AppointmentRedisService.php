@@ -2,7 +2,6 @@
 namespace App\Http\Services\Appointment;
 
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Redis;
 
 class AppointmentRedisService
 {

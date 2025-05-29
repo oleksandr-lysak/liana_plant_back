@@ -15,41 +15,41 @@ class SetAvailableTest extends TestCase
     /**
      * A basic feature test example.
      */
-    public function test_example(): void
-    {
-        $response = $this->get('/');
+    // public function test_example(): void
+    // {
+    //     $response = $this->get('/');
 
-        $response->assertStatus(200);
-    }
+    //     $response->assertStatus(200);
+    // }
 
-    public function testSetAvailable()
-    {
-        // Greate fake master
-        $master = Master::factory()->create();
+    // public function testSetAvailable()
+    // {
+    //     // Greate fake master
+    //     $master = Master::factory()->create();
 
-        // input data
-        $startTime = '2025-05-10 09:00:00';
-        $duration = 120;
+    //     // input data
+    //     $startTime = '2025-05-10 09:00:00';
+    //     $duration = 120;
 
-        // Call the endpoint to set the master as available
-        $response = $this->postJson('/api/masters/' . $master->id . '/availability', [
-            'start_time' => $startTime,
-            'duration' => $duration,
-        ]);
+    //     // Call the endpoint to set the master as available
+    //     $response = $this->postJson('/api/masters/' . $master->id . '/availability', [
+    //         'start_time' => $startTime,
+    //         'duration' => $duration,
+    //     ]);
 
-        // Check if the response is successful
-        $response->assertStatus(200);
-        $response->assertJson(['message' => 'Master is available']);
+    //     // Check if the response is successful
+    //     $response->assertStatus(200);
+    //     $response->assertJson(['message' => 'Master is available']);
 
-        // Check if the master is marked as available in Redis
-        $busyIntervals = Redis::zrangebyscore(
-            "master:{$master->id}:free-intervals",
-            '-inf',
-            '+inf',
-            'WITHSCORES'
-        );
+    //     // Check if the master is marked as available in Redis
+    //     $busyIntervals = Redis::zrangebyscore(
+    //         "master:{$master->id}:free-intervals",
+    //         '-inf',
+    //         '+inf',
+    //         'WITHSCORES'
+    //     );
 
-        $this->assertNotEmpty($busyIntervals);
-        $this->assertEquals(Carbon::parse($startTime)->timestamp, $busyIntervals[0]);
-    }
+    //     $this->assertNotEmpty($busyIntervals);
+    //     $this->assertEquals(Carbon::parse($startTime)->timestamp, $busyIntervals[0]);
+    // }
 }

@@ -4,10 +4,18 @@ namespace App\Http\Services\Appointment;
 use App\Models\Appointment;
 use App\Models\Client;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Redis;
 
 class AppointmentService
 {
+    private $redisService;
+    private $clock;
+
+    public function __construct(AppointmentRedisService $redisService, $clock = null)
+    {
+        $this->redisService = $redisService;
+        $this->clock = $clock ?: function () { return now(); };
+    }
+
     /**
      * Check if the master is busy at the given time.
      */
@@ -45,8 +53,7 @@ class AppointmentService
             $clientId = Client::create(['phone' => $clientPhone])->id;
         }
         // Check if the slot is available
-        $redisService = app(AppointmentRedisService::class);
-        $available = $redisService->isMasterAvailableAt($masterId, $start);
+        $available = $this->redisService->isMasterAvailableAt($masterId, $start);
         if ($available) {
             return Appointment::create([
                 'master_id' => $masterId,

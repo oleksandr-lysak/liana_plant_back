@@ -25,6 +25,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $photo
  * @property float $distance
  * @property int $main_service_id
+ * @property bool $approved
  */
 class MasterResource extends JsonResource
 {
@@ -55,13 +56,15 @@ class MasterResource extends JsonResource
             'phone' => $this->phone,
             'reviews_count' => (int) $this->reviews_count,
             'rating' => (float) round($this->rating, 1),
-            'main_photo' => (string) 'storage/'.$this->photo,
+            'main_photo' => (string) 'storage/' . $this->photo,
             'distance' => (float) round($this->distance, 3),
             'main_service_id' => (int) $this->service_id,
-            'available' => (bool) $this->availabilityMap[$this->id] ?? false,
+            'available' => array_key_exists($this->id, $this->availabilityMap)
+                ? (bool) $this->availabilityMap[$this->id]
+                : false,
+            'approved' => (bool) $this->approved,
             'slug' => (string) $this->slug,
         ];
-
     }
 
     private function getFormattedAddress($address)
@@ -69,7 +72,7 @@ class MasterResource extends JsonResource
         // try {
         //     return json_decode($address)->results[0]->formatted_address ?? '';
         // } catch (\Exception $e) {
-            return $address;
+        return $address;
         //}
     }
 }

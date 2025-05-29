@@ -6,10 +6,22 @@ use App\Models\FcmToken;
 use Exception;
 use Google\Client;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Redis;
 
 class FcmTokenService
 {
+    private $redis;
+    private $logger;
+    private $basePath;
+    private $config;
+
+    public function __construct($redis, $logger, $basePath, $config)
+    {
+        $this->redis = $redis;
+        $this->logger = $logger;
+        $this->basePath = $basePath;
+        $this->config = $config;
+    }
+
     public function createOrUpdate(array $data): Model
     {
         return FcmToken::updateOrCreate(
@@ -20,8 +32,7 @@ class FcmTokenService
 
     public function saveMasterIdsToToken(string $token, array $masterIds): void
     {
-        $redis = Redis::connection();
-        $redis->pipeline(function ($pipe) use ($token, $masterIds) {
+        $this->redis->pipeline(function ($pipe) use ($token, $masterIds) {
             foreach ($masterIds as $masterId) {
                 $pipe->sadd('masters:'.$masterId, $token);
             }
@@ -30,7 +41,7 @@ class FcmTokenService
 
     public function getTokensForMasters(array $masterIds): array
     {
-        $tokens = Redis::pipeline(function ($pipe) use ($masterIds) {
+        $tokens = $this->redis->pipeline(function ($pipe) use ($masterIds) {
             foreach ($masterIds as $masterId) {
                 $pipe->smembers('masters:'.$masterId);
             }
@@ -125,9 +136,9 @@ class FcmTokenService
         curl_close($ch);
 
         if ($error) {
-            logger()->error('FCM Request Error', ['error' => $error]);
+            ($this->logger)('error', 'FCM Request Error', ['error' => $error]);
         } else {
-            logger()->info('FCM Response', ['response' => $response]);
+            ($this->logger)('info', 'FCM Response', ['response' => $response]);
         }
     }
 }
