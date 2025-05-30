@@ -6,22 +6,10 @@ use App\Models\FcmToken;
 use Exception;
 use Google\Client;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Redis;
 
 class FcmTokenService
 {
-    private $redis;
-    private $logger;
-    private $basePath;
-    private $config;
-
-    public function __construct($redis, $logger, $basePath, $config)
-    {
-        $this->redis = $redis;
-        $this->logger = $logger;
-        $this->basePath = $basePath;
-        $this->config = $config;
-    }
-
     public function createOrUpdate(array $data): Model
     {
         return FcmToken::updateOrCreate(
@@ -32,7 +20,8 @@ class FcmTokenService
 
     public function saveMasterIdsToToken(string $token, array $masterIds): void
     {
-        $this->redis->pipeline(function ($pipe) use ($token, $masterIds) {
+        $redis = Redis::connection();
+        $redis->pipeline(function ($pipe) use ($token, $masterIds) {
             foreach ($masterIds as $masterId) {
                 $pipe->sadd('masters:'.$masterId, $token);
             }
@@ -41,7 +30,8 @@ class FcmTokenService
 
     public function getTokensForMasters(array $masterIds): array
     {
-        $tokens = $this->redis->pipeline(function ($pipe) use ($masterIds) {
+        $redis = Redis::connection();
+        $tokens = $redis->pipeline(function ($pipe) use ($masterIds) {
             foreach ($masterIds as $masterId) {
                 $pipe->smembers('masters:'.$masterId);
             }
