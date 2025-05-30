@@ -10,4 +10,5 @@ RUN npm install && npm run build
 RUN chown -R application:application /app/storage /app/bootstrap/cache
 RUN mkdir -p /var/log/supervisor
 COPY docker/supervisord.prod.conf /opt/docker/etc/supervisor.d/laravel.conf
+
 EXPOSE 80 
