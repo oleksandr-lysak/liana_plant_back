@@ -14,7 +14,6 @@ class GetMasterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'fcm_token' => 'required|string',
             'lat' => 'required|numeric',
             'lng' => 'required|numeric',
             'zoom' => 'required|numeric',

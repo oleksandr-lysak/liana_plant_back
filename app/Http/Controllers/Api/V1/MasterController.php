@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AddMasterRequest;
 use App\Http\Requests\AddReviewRequest;
 use App\Http\Requests\Availability\SetAvailableMasterRequest;
+use App\Http\Requests\Availability\SetUnavailableMasterRequest;
 use App\Http\Requests\GetMasterRequest;
 use App\Http\Requests\ImportExternalMasterRequest;
 use App\Http\Resources\Api\V1\MasterResource;
@@ -101,10 +102,15 @@ class MasterController extends Controller
             ]]);
     }
 
+    public function setUnavailable(SetUnavailableMasterRequest $request, $id)
+    {
+
+    }
+
     /**
      * Set the master as available.
      */
-    public function setAvailable(SetAvailableMasterRequest $request, $id, AppointmentRedisService $appointmentRedisService): JsonResponse
+    public function setAvailable(SetAvailableMasterRequest $request, String $id, AppointmentRedisService $appointmentRedisService): JsonResponse
     {
         $data = $request->validated();
         $id = (int) $id;
@@ -115,7 +121,7 @@ class MasterController extends Controller
         return response()->json(['message' => 'Master is available']);
     }
 
-    public function storeFromExternal(int $serviceId, ImportExternalMasterRequest $request, MasterService $masterService, ClientService $clientService) 
+    public function storeFromExternal(int $serviceId, ImportExternalMasterRequest $request, MasterService $masterService, ClientService $clientService)
     {
         $master = $masterService->importFromExternal($serviceId, $request->validated(), $clientService);
         return new MasterResource($master);

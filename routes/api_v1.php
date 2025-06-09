@@ -1,12 +1,10 @@
 <?php
 
-use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\ClientController;
 use App\Http\Controllers\Api\V1\MasterController;
 use App\Http\Controllers\Api\V1\ServiceController;
 use App\Http\Controllers\Api\V1\SmsVerificationController;
 use App\Http\Controllers\UserController;
-use App\Http\Services\FcmTokenService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -28,9 +26,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('/test', function () {
     return true;
 });
-Route::get('/get-saved-tokens', function () {
-    return true;
-});
 
 Route::prefix('masters')->group(function () {
     Route::get('/', [MasterController::class, 'index']);
@@ -42,18 +37,17 @@ Route::prefix('masters')->group(function () {
     Route::post('/{id}/work-schedule', [MasterController::class, 'updateWorkSchedule']);
     Route::prefix('/{id}')->group(function () {
         Route::post('/availability', [MasterController::class, 'setAvailable']);
-//        Route::delete('/availability', [AppointmentController::class, 'setUnavailable']);
-//        Route::get('/availability', [AppointmentController::class, 'getAvailability']);
+        Route::delete('/availability', [MasterController::class, 'setUnavailable']);
     });
 });
 
 
-
-Route::prefix('appointments')->group(function () {
-    Route::get('/is-busy', [AppointmentController::class, 'isBusy']);
-    Route::get('/booked-slots', [AppointmentController::class, 'bookedSlots']);
-    Route::post('/book', [AppointmentController::class, 'book']);
-});
+// TODO: Uncomment this when we have appointments
+// Route::prefix('appointments')->group(function () {
+//     Route::get('/is-busy', [AppointmentController::class, 'isBusy']);
+//     Route::get('/booked-slots', [AppointmentController::class, 'bookedSlots']);
+//     Route::post('/book', [AppointmentController::class, 'book']);
+// });
 
 Route::prefix('services')->group(function () {
     Route::get('/', [ServiceController::class, 'index']);

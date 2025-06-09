@@ -11,7 +11,6 @@ readonly class MasterFetcher
 {
     public function __construct(
         private MasterService           $masterService,
-        private FcmTokenService         $fcmTokenService,
         private AppointmentRedisService $appointmentRedisService,
     ) {}
 
@@ -33,11 +32,6 @@ readonly class MasterFetcher
             $validated['lng'],
             $validated['zoom'],
             $filters
-        );
-
-        $this->fcmTokenService->saveMasterIdsToToken(
-            $validated['fcm_token'],
-            $masters->pluck('id')->toArray()
         );
 
         $availabilityMap = $this->appointmentRedisService
