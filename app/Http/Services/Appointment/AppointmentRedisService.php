@@ -42,7 +42,7 @@ class AppointmentRedisService
         );
     }
 
-    public function markAsFree($masterId, Carbon $startTime, Carbon $endTime): void
+    public function markAsFree(int $masterId, Carbon $startTime, Carbon $endTime): void
     {
         $this->clearExpiredIntervals($masterId);
         Redis::zadd(

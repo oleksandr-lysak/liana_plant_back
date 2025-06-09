@@ -107,6 +107,7 @@ class MasterController extends Controller
     public function setAvailable(SetAvailableMasterRequest $request, $id, AppointmentRedisService $appointmentRedisService): JsonResponse
     {
         $data = $request->validated();
+        $id = (int) $id;
 
         $interval = new AvailabilityInterval($data['start_time'], $data['duration']);
         $appointmentRedisService->markAsFree($id, $interval->start, $interval->end);
