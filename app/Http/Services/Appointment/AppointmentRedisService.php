@@ -42,6 +42,43 @@ class AppointmentRedisService
         );
     }
 
+    public function markAsUnavailableFromNow(int $masterId): void
+    {
+        $key = $this->getMasterFreeIntervalsKey($masterId);
+        $freeIntervals = Redis::zrangebyscore($key, '-inf', '+inf');
+
+        foreach ($freeIntervals as $rawInterval) {
+            $interval = json_decode($rawInterval, true);
+
+            if (!$interval || !isset($interval['start'], $interval['end'])) {
+                continue;
+            }
+
+            $start = (int) $interval['start'];
+            $end = (int) $interval['end'];
+
+            // If the current time is within the interval
+            $now = Carbon::now();
+            if ($now->timestamp >= $start && $now->timestamp < $end) {
+                // Delete the current interval
+                Redis::zrem($key, json_encode($interval));
+
+                // Add a new interval that starts from now
+                if ($now->timestamp > $start) {
+                    $newInterval = [
+                        'start' => $start,
+                        'end' => $now->timestamp,
+                    ];
+
+                    Redis::zadd($key, $newInterval['start'], json_encode($newInterval));
+                }
+
+                return;
+            }
+        }
+    }
+
+
     public function markAsFree(int $masterId, Carbon $startTime, Carbon $endTime): void
     {
         $this->clearExpiredIntervals($masterId);

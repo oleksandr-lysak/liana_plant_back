@@ -102,9 +102,14 @@ class MasterController extends Controller
             ]]);
     }
 
-    public function setUnavailable(SetUnavailableMasterRequest $request, $id)
+    public function setUnavailable(SetUnavailableMasterRequest $request, String $id, AppointmentRedisService $appointmentRedisService): JsonResponse
     {
+        $id = (int) $id;
 
+        // Mark the master as unavailable in Redis
+        $appointmentRedisService->markAsUnavailableFromNow($id);
+
+        return response()->json(['message' => 'Master is unavailable']);
     }
 
     /**
