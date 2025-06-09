@@ -104,7 +104,7 @@ class MasterController extends Controller
     /**
      * Set the master as available.
      */
-    public function setAvailable(SetAvailableMasterRequest $request, int $id, AppointmentRedisService $appointmentRedisService): JsonResponse
+    public function setAvailable(SetAvailableMasterRequest $request, $id, AppointmentRedisService $appointmentRedisService): JsonResponse
     {
         $data = $request->validated();
 
